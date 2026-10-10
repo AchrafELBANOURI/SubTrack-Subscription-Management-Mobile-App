@@ -41,3 +41,21 @@ example
 # generated native folders
 /ios
 /android
+
+# env
+.env
+.env.*
+.env.local
+
+# editor
+.vscode/
+.idea/
+
+# logs
+*.log
+
+# test coverage
+coverage/
+
+# local generated
+.memory/
