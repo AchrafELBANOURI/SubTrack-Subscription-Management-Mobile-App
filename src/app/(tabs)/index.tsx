@@ -6,9 +6,7 @@ import "../../../global.css";
 export default function Index() {
   return (
     <SafeScreen className="screen-container">
-      <Text className="text-xl font-bold text-blue-500">
-        Welcome to Nativewind!
-      </Text>
+      <Text className="text-xl font-sans-extrabold text-blue-500">Home</Text>
 
       <Link
         href="/onboarding"
