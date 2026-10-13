@@ -1,50 +1,60 @@
-import { Link } from "expo-router";
-import { StyleSheet, Text } from "react-native";
-import { SafeScreen } from "../../../components/SafeScreen";
+import { useState } from "react";
+import { FlatList, Text, View } from "react-native";
+
 import "../../../global.css";
 
+import { HOME_SUBSCRIPTIONS } from "../../../constants/data";
+
+import SafeScreen from "../../../components/SafeScreen";
+import HomeHeader from "../../../components/HomeHeader";
+import HomeBalanceCard from "../../../components/HomeBalanceCard";
+import HomeUpcomingSubscriptions from "../../../components/HomeUpcomingSubscriptions";
+import SubscriptionCard from "../../../components/SubscriptionCard";
+import ListHeading from "../../../components/ListHeading";
+
 export default function Index() {
-  return (
-    <SafeScreen className="screen-container">
-      <Text className="text-xl font-sans-extrabold text-blue-500">Home</Text>
+    const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
 
-      <Link
-        href="/onboarding"
-        className="mt-4 rounded bg-primary text-white p-4"
-      >
-        On Boarding
-      </Link>
-      <Link
-        href="/(auth)/sign-in"
-        className="mt-4 rounded bg-primary text-white p-4"
-      >
-        Sign In
-      </Link>
-
-      <Link
-        href="/subscriptions/spotify"
-        className="mt-4 rounded bg-primary text-white p-4"
-      >
-        Spotify Subscription
-      </Link>
-
-      <Link
-        href={{
-          pathname: "/subscriptions/[id]",
-          params: { id: "claude" },
-        }}
-        className="mt-4 rounded bg-primary text-white p-4"
-      >
-        Claude Subscription
-      </Link>
-    </SafeScreen>
-  );
+    return (
+        <SafeScreen
+            className="flex-1 bg-background"
+            edges={["top", "left", "right"]}
+        >
+            <View className="screen-container">
+                <FlatList
+                    data={HOME_SUBSCRIPTIONS}
+                    renderItem={({ item: subscription }) => (
+                        <SubscriptionCard
+                            {...subscription}
+                            expanded={expandedSubId === subscription.id}
+                            onPress={() =>
+                                setExpandedSubId((currentId) =>
+                                    currentId === subscription.id
+                                        ? null
+                                        : subscription.id,
+                                )
+                            }
+                        />
+                    )}
+                    ListHeaderComponent={
+                        <>
+                            <HomeHeader />
+                            <HomeBalanceCard />
+                            <HomeUpcomingSubscriptions />
+                            <ListHeading title="All Subscriptions" />
+                        </>
+                    }
+                    ListFooterComponent={<View className="mt-20"></View>}
+                    keyExtractor={(item) => item.id}
+                    showsVerticalScrollIndicator={false}
+                    ListEmptyComponent={() => (
+                        <Text className="home-empty-state">
+                            No Subscriptions yet.
+                        </Text>
+                    )}
+                    extraData={expandedSubId}
+                />
+            </View>
+        </SafeScreen>
+    );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
