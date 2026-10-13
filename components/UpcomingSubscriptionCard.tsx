@@ -6,7 +6,8 @@ const UpcomingSubscriptionCard = ({
 }: {
     upcomingSubscriptionDetail: UpcomingSubscriptionCardProps;
 }) => {
-    const { name, price, daysLeft, icon } = upcomingSubscriptionDetail;
+    const { name, price, currency, daysLeft, icon } =
+        upcomingSubscriptionDetail;
 
     return (
         <View className="upcoming-card">
@@ -15,7 +16,7 @@ const UpcomingSubscriptionCard = ({
 
                 <View>
                     <Text className="upcoming-price">
-                        {formatCurrency(price)}
+                        {formatCurrency(price, currency)}
                     </Text>
                     <Text className="upcoming-meta" numberOfLines={1}>
                         {daysLeft > 1 ? `${daysLeft} days left` : "Last Day"}
