@@ -1,7 +1,7 @@
 import { Image, Text, View } from "react-native";
-import images from "../constants/images";
-import { HOME_USER } from "../constants/data";
-import { icons } from "../constants/icons";
+import images from "../../constants/images";
+import { HOME_USER } from "../../constants/data";
+import { icons } from "../../constants/icons";
 
 export default function HomeHeader() {
     return (

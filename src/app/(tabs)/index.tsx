@@ -6,11 +6,11 @@ import "../../../global.css";
 import { HOME_SUBSCRIPTIONS } from "../../../constants/data";
 
 import SafeScreen from "../../../components/SafeScreen";
-import HomeHeader from "../../../components/HomeHeader";
-import HomeBalanceCard from "../../../components/HomeBalanceCard";
-import HomeUpcomingSubscriptions from "../../../components/HomeUpcomingSubscriptions";
-import SubscriptionCard from "../../../components/SubscriptionCard";
-import ListHeading from "../../../components/ListHeading";
+import HomeHeader from "../../../components/home/HomeHeader";
+import HomeBalanceCard from "../../../components/home/HomeBalanceCard";
+import HomeUpcomingSubscriptions from "../../../components/home/HomeUpcomingSubscriptions";
+import SubscriptionCard from "../../../components/home/SubscriptionCard";
+import ListHeading from "../../../components/home/ListHeading";
 
 export default function Index() {
     const [expandedSubId, setExpandedSubId] = useState<string | null>(null);

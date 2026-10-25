@@ -16,26 +16,30 @@ import plus from "@/assets/icons/plus.png";
 import setting from "@/assets/icons/setting.png";
 import spotify from "@/assets/icons/spotify.png";
 import wallet from "@/assets/icons/wallet.png";
+import visible from "@/assets/icons/visible.png";
+import hide from "@/assets/icons/hide.png";
 
 export const icons = {
-  home,
-  wallet,
-  setting,
-  activity,
-  add,
-  back,
-  menu,
-  plus,
-  notion,
-  dropbox,
-  openai,
-  adobe,
-  medium,
-  figma,
-  spotify,
-  github,
-  claude,
-  canva,
+    home,
+    wallet,
+    setting,
+    activity,
+    add,
+    back,
+    menu,
+    plus,
+    notion,
+    dropbox,
+    openai,
+    adobe,
+    medium,
+    figma,
+    spotify,
+    github,
+    claude,
+    canva,
+    visible,
+    hide,
 } as const;
 
 export type IconKey = keyof typeof icons;

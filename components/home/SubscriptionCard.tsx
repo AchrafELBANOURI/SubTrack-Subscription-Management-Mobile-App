@@ -3,7 +3,7 @@ import {
     formatCurrency,
     formatStatusLabel,
     formatSubscriptionDateTime,
-} from "../lib/uttils";
+} from "../../lib/uttils";
 import { clsx } from "clsx";
 
 const SubscriptionCard = ({

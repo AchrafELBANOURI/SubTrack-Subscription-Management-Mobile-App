@@ -1,11 +1,15 @@
-import { Text } from "react-native";
-import SafeScreen from "../../../components/SafeScreen";
+import { AuthForm, SignInForm, AuthFooterLink } from "@auth";
 
 const SignIn = () => {
     return (
-        <SafeScreen className="screen-container">
-            <Text>SignIn</Text>
-        </SafeScreen>
+        <AuthForm
+            header={{
+                title: "Welcome back",
+                subtitle: "Sign in to continue managing your subscriptions",
+            }}
+            formDetails={<SignInForm />}
+            footer={<AuthFooterLink />}
+        />
     );
 };
 

@@ -1,5 +1,5 @@
 import { View, Text, Image } from "react-native";
-import { formatCurrency } from "../lib/uttils";
+import { formatCurrency } from "../../lib/uttils";
 
 const UpcomingSubscriptionCard = ({
     upcomingSubscriptionDetail,
