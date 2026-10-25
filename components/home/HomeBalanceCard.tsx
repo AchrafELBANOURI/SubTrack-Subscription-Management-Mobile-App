@@ -1,6 +1,6 @@
 import { View, Text } from "react-native";
-import { formatCurrency, formatSubscriptionDateTime } from "../lib/uttils";
-import { HOME_BALANCE } from "../constants/data";
+import { formatCurrency, formatSubscriptionDateTime } from "../../lib/uttils";
+import { HOME_BALANCE } from "../../constants/data";
 
 const HomeBalanceCard = () => {
     return (

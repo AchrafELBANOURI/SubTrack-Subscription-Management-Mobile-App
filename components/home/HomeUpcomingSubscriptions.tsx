@@ -1,5 +1,5 @@
 import { View, FlatList, Text } from "react-native";
-import { UPCOMING_SUBSCRIPTIONS } from "../constants/data";
+import { UPCOMING_SUBSCRIPTIONS } from "../../constants/data";
 import UpcomingSubscriptionCard from "./UpcomingSubscriptionCard";
 import ListHeading from "./ListHeading";
 

@@ -51,6 +51,11 @@ declare global {
     interface ListHeadingProps {
         title: string;
     }
+
+    type AuthBrandProps = {
+        title: string;
+        subtitle: string;
+    };
 }
 
 export {};
