@@ -25,7 +25,8 @@ declare global {
         icon: ImageSourcePropType;
         name: string;
         plan?: string;
-        category?: string;
+        frequency?: Frequency;
+        category?: Category;
         paymentMethod?: string;
         status?: string;
         startDate?: string;
@@ -36,17 +37,22 @@ declare global {
         color?: string;
     }
 
+    type Category =
+        | "Entertainment"
+        | "AI Tools"
+        | "Developer Tools"
+        | "Design"
+        | "Productivity"
+        | "Other";
+
+    type Frequency = "Monthly" | "Yearly";
+
     interface SubscriptionCardProps extends Omit<Subscription, "id"> {
         expanded: boolean;
         onPress: () => void;
         onCancelPress?: () => void;
         isCancelling?: boolean;
     }
-
-    interface UpcomingSubscriptionCardProps extends Omit<
-        UpcomingSubscription,
-        "id"
-    > {}
 
     interface ListHeadingProps {
         title: string;
