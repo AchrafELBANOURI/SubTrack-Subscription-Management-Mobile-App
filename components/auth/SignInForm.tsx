@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import { isFormValid } from "../../lib/validation";
 import { useState } from "react";
 import { navigateAfterAuth } from "../../lib/navigation";
+import { posthog, posthogLogger } from "../../lib/posthog";
 
 const SignInForm = () => {
     const { errors, fetchStatus, signIn } = useSignIn();
@@ -28,6 +29,14 @@ const SignInForm = () => {
         }
 
         if (signIn.status === "complete") {
+            posthog?.capture("user_signed_in", {
+                authentication_method: "password",
+            });
+            posthogLogger.info("authentication completed", {
+                authentication_method: "password",
+                authentication_outcome: "success",
+            });
+
             await signIn.finalize({
                 navigate: navigateAfterAuth,
             });

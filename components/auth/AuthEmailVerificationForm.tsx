@@ -3,6 +3,7 @@ import { useSignUp } from "@clerk/expo";
 import { navigateAfterAuth } from "../../lib/navigation";
 import { AuthButton, AuthVerifCode } from "@auth";
 import { useState } from "react";
+import { posthog, posthogLogger } from "../../lib/posthog";
 
 const AuthEmailVerificationForm = () => {
     const { errors, signUp, fetchStatus } = useSignUp();
@@ -18,6 +19,15 @@ const AuthEmailVerificationForm = () => {
             console.error("Sign-up attempt not complete: ", signUp);
             return;
         }
+
+        posthog?.capture("user_signed_up", {
+            verification_method: "email_code",
+        });
+        posthogLogger.info("authentication completed", {
+            authentication_method: "email_code",
+            authentication_outcome: "success",
+            authentication_flow: "sign_up",
+        });
 
         await signUp.finalize({
             navigate: navigateAfterAuth,

@@ -3,6 +3,7 @@ import { useSignIn } from "@clerk/expo";
 import { navigateAfterAuth } from "../../lib/navigation";
 import { AuthButton, AuthVerifCode } from "@auth";
 import { useState } from "react";
+import { posthog } from "../../lib/posthog";
 
 const AuthMFAVerificationForm = () => {
     const { signIn, fetchStatus, errors } = useSignIn();
@@ -15,6 +16,10 @@ const AuthMFAVerificationForm = () => {
             console.error("Sign-in attempt not complete:", signIn);
             return;
         }
+
+        posthog?.capture("user_signed_in", {
+            authentication_method: "mfa_email_code",
+        });
 
         await signIn.finalize({
             navigate: navigateAfterAuth,

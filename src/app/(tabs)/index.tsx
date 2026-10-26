@@ -11,6 +11,7 @@ import HomeBalanceCard from "../../../components/home/HomeBalanceCard";
 import HomeUpcomingSubscriptions from "../../../components/home/HomeUpcomingSubscriptions";
 import SubscriptionCard from "../../../components/home/SubscriptionCard";
 import ListHeading from "../../../components/home/ListHeading";
+import { posthog, posthogLogger } from "../../../lib/posthog";
 
 export default function Index() {
     const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
@@ -27,13 +28,27 @@ export default function Index() {
                         <SubscriptionCard
                             {...subscription}
                             expanded={expandedSubId === subscription.id}
-                            onPress={() =>
-                                setExpandedSubId((currentId) =>
-                                    currentId === subscription.id
-                                        ? null
-                                        : subscription.id,
-                                )
-                            }
+                            onPress={() => {
+                                const isExpanding =
+                                    expandedSubId !== subscription.id;
+
+                                posthog?.capture(
+                                    isExpanding
+                                        ? "subscription_expanded"
+                                        : "subscription_collapsed",
+                                    {
+                                        subscription_id: subscription.id,
+                                        expanded: isExpanding,
+                                    },
+                                );
+                                posthogLogger.info("subscription expanded", {
+                                    subscription_id: subscription.id,
+                                    expanded: isExpanding,
+                                });
+                                setExpandedSubId(
+                                    isExpanding ? subscription.id : null,
+                                );
+                            }}
                         />
                     )}
                     ListHeaderComponent={
