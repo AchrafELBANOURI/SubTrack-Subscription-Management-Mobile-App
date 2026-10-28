@@ -5,6 +5,7 @@ import {
     formatSubscriptionDateTime,
 } from "../../lib/uttils";
 import { clsx } from "clsx";
+import { icons } from "../../constants/icons";
 
 const SubscriptionCard = ({
     name,
@@ -33,7 +34,7 @@ const SubscriptionCard = ({
         >
             <View className="sub-head">
                 <View className="sub-main">
-                    <Image source={icon} className="sub-icon" />
+                    <Image source={icon ?? icons.plus} className="sub-icon" />
                     <View className="sub-copy">
                         <Text numberOfLines={1} className="sub-title">
                             {name}

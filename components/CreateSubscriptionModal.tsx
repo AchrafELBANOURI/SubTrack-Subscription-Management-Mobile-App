@@ -20,7 +20,7 @@ import { posthog } from "../lib/posthog";
 interface CreateSubscriptionModalProps {
     visible: boolean;
     onClose: () => void;
-    onSubmit: (subscription: Subscription) => void;
+    onSubmit: (subscription: Subscription) => Promise<void>;
 }
 
 const CATEGORY_COLORS: Record<Category, string> = {
@@ -50,6 +50,7 @@ const CreateSubscriptionModal = ({
     const [price, setPrice] = useState("");
     const [frequency, setFrequency] = useState<Frequency>("Monthly");
     const [category, setCategory] = useState<Category>("Other");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Improved price validation
     const isValidPrice = () => {
@@ -64,8 +65,10 @@ const CreateSubscriptionModal = ({
 
     const isValidForm = name.trim() !== "" && isValidPrice();
 
-    const handleSubmit = () => {
-        if (!isValidForm) return;
+    const handleSubmit = async () => {
+        if (!isValidForm || isSubmitting) return;
+
+        setIsSubmitting(true);
 
         const priceValue = Number(price.trim());
         const now = dayjs();
@@ -87,17 +90,23 @@ const CreateSubscriptionModal = ({
             color: CATEGORY_COLORS[category],
         };
 
-        onSubmit(newSubscription);
+        try {
+            await onSubmit(newSubscription);
 
-        posthog?.capture("subscription_created", {
-            subscription_name: name.trim(),
-            subscription_price: priceValue,
-            subscription_frequency: frequency,
-            subscription_category: category,
-        });
+            posthog?.capture("subscription_created", {
+                subscription_name: name.trim(),
+                subscription_price: priceValue,
+                subscription_frequency: frequency,
+                subscription_category: category,
+            });
 
-        resetForm();
-        onClose();
+            resetForm();
+            onClose();
+        } catch (err) {
+            console.error("error : ", err);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const resetForm = () => {
@@ -244,13 +253,16 @@ const CreateSubscriptionModal = ({
                             <Pressable
                                 className={clsx(
                                     "auth-button",
-                                    !isValidForm && "auth-button-disabled",
+                                    (!isValidForm || isSubmitting) &&
+                                        "auth-button-disabled",
                                 )}
                                 onPress={handleSubmit}
-                                disabled={!isValidForm}
+                                disabled={!isValidForm || isSubmitting}
                             >
                                 <Text className="auth-button-text">
-                                    Create Subscription
+                                    {isSubmitting
+                                        ? "Creating..."
+                                        : "Create Subscription"}
                                 </Text>
                             </Pressable>
                         </ScrollView>

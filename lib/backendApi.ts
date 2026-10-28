@@ -79,14 +79,10 @@ export const updateSubscription = (
     subscriptionId: number,
     subscription: SubscriptionPayload,
 ) =>
-    requestApi<Subscription>(
-        `/api/subscriptions/${subscriptionId}`,
-        getToken,
-        {
-            method: "PUT",
-            body: JSON.stringify(subscription),
-        },
-    );
+    requestApi<Subscription>(`/api/subscriptions/${subscriptionId}`, getToken, {
+        method: "PUT",
+        body: JSON.stringify(subscription),
+    });
 
 export const deleteSubscription = (
     getToken: GetToken,

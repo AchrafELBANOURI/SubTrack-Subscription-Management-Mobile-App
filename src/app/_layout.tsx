@@ -5,6 +5,7 @@ import { useFonts } from "expo-font";
 
 import { ClerkProvider, useAuth, useUser } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 
 import { posthog } from "../../lib/posthog";
@@ -12,6 +13,14 @@ import { posthog } from "../../lib/posthog";
 void SplashScreen.preventAutoHideAsync();
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: 1,
+        },
+    },
+});
 
 if (!publishableKey) {
     throw new Error("Add your Clerk Publishable Key to the .env file");
@@ -75,7 +84,7 @@ function RootLayoutComponent() {
 
     const router = <Stack screenOptions={{ headerShown: false }} />;
 
-    return posthog ? (
+    const app = posthog ? (
         <PostHogProvider
             client={posthog}
             autocapture={{
@@ -89,6 +98,10 @@ function RootLayoutComponent() {
         </PostHogProvider>
     ) : (
         router
+    );
+
+    return (
+        <QueryClientProvider client={queryClient}>{app}</QueryClientProvider>
     );
 }
 

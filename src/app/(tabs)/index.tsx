@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { FlatList, Text, View } from "react-native";
 
 import "../../../global.css";
@@ -12,15 +11,42 @@ import HomeUpcomingSubscriptions from "../../../components/home/HomeUpcomingSubs
 import SubscriptionCard from "../../../components/home/SubscriptionCard";
 import ListHeading from "../../../components/home/ListHeading";
 import CreateSubscriptionModal from "../../../components/CreateSubscriptionModal";
-import { useSubscriptionStore } from "../../../stores/SubscriptionStore";
+import {
+    useCreateSubscriptionMutation,
+    useSubscriptionsQuery,
+} from "../../../lib/subscriptionQueries";
+import { useSubscriptionUiStore } from "../../../stores/SubscriptionStore";
 
 export default function Index() {
-    const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const { subscriptions, addSubscription } = useSubscriptionStore();
+    const expandedSubId = useSubscriptionUiStore(
+        (state) => state.expandedSubscriptionId,
+    );
+    const isModalVisible = useSubscriptionUiStore(
+        (state) => state.isCreateModalVisible,
+    );
+    const setExpandedSubscriptionId = useSubscriptionUiStore(
+        (state) => state.setExpandedSubscriptionId,
+    );
+    const setCreateModalVisible = useSubscriptionUiStore(
+        (state) => state.setCreateModalVisible,
+    );
+    const { data: subscriptions = [], isPending } = useSubscriptionsQuery();
+    const createSubscriptionMutation = useCreateSubscriptionMutation();
 
-    const handleCreateSubscription = (newSubscription: Subscription) => {
-        addSubscription(newSubscription);
+    const handleCreateSubscription = async (newSubscription: Subscription) => {
+        await createSubscriptionMutation.mutateAsync({
+            name: newSubscription.name,
+            price: newSubscription.price,
+            currency: newSubscription.currency,
+            billing: newSubscription.billing,
+            plan: newSubscription.plan ?? undefined,
+            category: newSubscription.category ?? undefined,
+            status: newSubscription.status ?? undefined,
+            paymentMethod: newSubscription.paymentMethod ?? undefined,
+            startDate: newSubscription.startDate ?? undefined,
+            renewalDate: newSubscription.renewalDate ?? undefined,
+            color: newSubscription.color ?? undefined,
+        });
 
         posthog?.capture("subscription_created", {
             subscription_name: newSubscription.name,
@@ -59,10 +85,8 @@ export default function Index() {
                                     subscription_id: subscription.id,
                                     expanded: isExpanding,
                                 });
-                                setExpandedSubId(
-                                    isExpanding
-                                        ? subscription.id.toString()
-                                        : null,
+                                setExpandedSubscriptionId(
+                                    isExpanding ? subscription.id : null,
                                 );
                             }}
                         />
@@ -71,7 +95,7 @@ export default function Index() {
                         <>
                             <HomeHeader
                                 handlePressAddIcon={() =>
-                                    setIsModalVisible(true)
+                                    setCreateModalVisible(true)
                                 }
                             />
                             <HomeBalanceCard />
@@ -84,7 +108,9 @@ export default function Index() {
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={() => (
                         <Text className="home-empty-state">
-                            No Subscriptions yet.
+                            {isPending
+                                ? "Loading subscriptions..."
+                                : "No Subscriptions yet."}
                         </Text>
                     )}
                     extraData={expandedSubId}
@@ -92,7 +118,7 @@ export default function Index() {
 
                 <CreateSubscriptionModal
                     visible={isModalVisible}
-                    onClose={() => setIsModalVisible(false)}
+                    onClose={() => setCreateModalVisible(false)}
                     onSubmit={handleCreateSubscription}
                 />
             </View>

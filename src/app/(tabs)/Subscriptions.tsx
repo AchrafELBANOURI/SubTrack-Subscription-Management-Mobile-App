@@ -1,13 +1,21 @@
 import { Text, View, TextInput, FlatList } from "react-native";
-import { useState } from "react";
 import { SubscriptionCard } from "@home";
 import SafeScreen from "../../../components/SafeScreen";
-import { useSubscriptionStore } from "../../../stores/SubscriptionStore";
+import { useSubscriptionsQuery } from "../../../lib/subscriptionQueries";
+import { useSubscriptionUiStore } from "../../../stores/SubscriptionStore";
 
 const Subscriptions = () => {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [expandedId, setExpandedId] = useState<string | null>(null);
-    const subscriptions = useSubscriptionStore((state) => state.subscriptions);
+    const searchQuery = useSubscriptionUiStore((state) => state.searchQuery);
+    const expandedId = useSubscriptionUiStore(
+        (state) => state.expandedSubscriptionId,
+    );
+    const setSearchQuery = useSubscriptionUiStore(
+        (state) => state.setSearchQuery,
+    );
+    const toggleExpandedSubscriptionId = useSubscriptionUiStore(
+        (state) => state.toggleExpandedSubscriptionId,
+    );
+    const { data: subscriptions = [], isPending } = useSubscriptionsQuery();
 
     const filteredSubscriptions = subscriptions.filter(
         (subscription) =>
@@ -26,7 +34,7 @@ const Subscriptions = () => {
         <SafeScreen className="flex-1 bg-background">
             <FlatList
                 data={filteredSubscriptions}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.id.toString()}
                 ListHeaderComponent={
                     <View className="px-5 pt-5">
                         <Text className="text-3xl font-bold text-dark mb-5">
@@ -39,6 +47,7 @@ const Subscriptions = () => {
                             value={searchQuery}
                             onChangeText={setSearchQuery}
                         />
+                        {isPending && <Text>Loading subscriptions...</Text>}
                     </View>
                 }
                 renderItem={({ item: subscription }) => (
@@ -46,11 +55,7 @@ const Subscriptions = () => {
                         {...subscription}
                         expanded={expandedId === subscription.id}
                         onPress={() =>
-                            setExpandedId(
-                                expandedId === subscription.id
-                                    ? null
-                                    : subscription.id,
-                            )
+                            toggleExpandedSubscriptionId(subscription.id)
                         }
                     />
                 )}

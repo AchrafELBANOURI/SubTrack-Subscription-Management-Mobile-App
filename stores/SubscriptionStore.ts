@@ -1,40 +1,34 @@
-import {
-    create,
-    type StoreApi,
-    type StateCreator,
-    UseBoundStore,
-} from "zustand";
-import { HOME_SUBSCRIPTIONS } from "../constants/data";
+import { create } from "zustand";
 
-interface SubscriptionStore {
-    subscriptions: Subscription[];
-    addSubscription: (subscription: Subscription) => void;
-    setSubscriptions: (subscriptions: Subscription[]) => void;
-    setSubscriptionById: (
-        subscriptionId: string,
-        subscription: Subscription,
-    ) => void;
+interface SubscriptionUiState {
+    expandedSubscriptionId: string | number | null;
+    isCreateModalVisible: boolean;
+    searchQuery: string;
+    setExpandedSubscriptionId: (subscriptionId: string | number | null) => void;
+    setCreateModalVisible: (visible: boolean) => void;
+    setSearchQuery: (value: string) => void;
+    toggleExpandedSubscriptionId: (subscriptionId: string | number) => void;
 }
 
-const subscriptionStoreFactory: StateCreator<SubscriptionStore> = (set) => ({
-    subscriptions: HOME_SUBSCRIPTIONS,
+export const useSubscriptionUiStore = create<SubscriptionUiState>((set, get) => ({
+    expandedSubscriptionId: null,
+    isCreateModalVisible: false,
+    searchQuery: "",
 
-    addSubscription: (newSubscription: Subscription) => {
-        set((state: SubscriptionStore) => ({
-            subscriptions: [newSubscription, ...state.subscriptions],
-        }));
+    setExpandedSubscriptionId: (subscriptionId) =>
+        set({ expandedSubscriptionId: subscriptionId }),
+
+    setCreateModalVisible: (visible) =>
+        set({ isCreateModalVisible: visible }),
+
+    setSearchQuery: (value) => set({ searchQuery: value }),
+
+    toggleExpandedSubscriptionId: (subscriptionId) => {
+        const { expandedSubscriptionId } = get();
+        const isExpanding = expandedSubscriptionId !== subscriptionId;
+
+        set({
+            expandedSubscriptionId: isExpanding ? subscriptionId : null,
+        });
     },
-
-    setSubscriptions: (subscriptions: Subscription[]) => set({ subscriptions }),
-
-    setSubscriptionById(subscriptionId, subscription) {
-        return set((state) => ({
-            subscriptions: state.subscriptions.map((sub) =>
-                sub.id === subscriptionId ? subscription : sub,
-            ),
-        }));
-    },
-});
-
-export const useSubscriptionStore: UseBoundStore<StoreApi<SubscriptionStore>> =
-    create<SubscriptionStore>(subscriptionStoreFactory);
+}));

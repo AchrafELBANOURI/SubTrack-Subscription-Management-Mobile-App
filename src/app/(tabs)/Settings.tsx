@@ -3,10 +3,12 @@ import { useClerk, useUser } from "@clerk/expo";
 import SafeScreen from "../../../components/SafeScreen";
 import images from "../../../constants/images";
 import { posthog } from "../../../lib/posthog";
+import { useCurrentUserQuery } from "../../../lib/subscriptionQueries";
 
 const Settings = () => {
     const { signOut } = useClerk();
     const { user } = useUser();
+    const { data: currentUser } = useCurrentUserQuery();
 
     const handleSignOut = async () => {
         try {
@@ -23,7 +25,8 @@ const Settings = () => {
         user?.fullName ||
         user?.emailAddresses[0]?.emailAddress ||
         "User";
-    const email = user?.emailAddresses[0]?.emailAddress;
+
+    const email = currentUser?.email ?? user?.emailAddresses[0]?.emailAddress;
 
     return (
         <SafeScreen className="flex-1 bg-background p-5">
@@ -70,7 +73,8 @@ const Settings = () => {
                             numberOfLines={1}
                             ellipsizeMode="tail"
                         >
-                            {user?.id?.substring(0, 20)}...
+                            {currentUser?.clerkUserId?.substring(0, 20) ||
+                                "N/A"}
                         </Text>
                     </View>
                     <View className="flex-row justify-between items-center py-2">
@@ -78,8 +82,10 @@ const Settings = () => {
                             Joined
                         </Text>
                         <Text className="text-sm font-sans-medium text-primary">
-                            {user?.createdAt
-                                ? new Date(user.createdAt).toLocaleDateString()
+                            {currentUser?.createdAt
+                                ? new Date(
+                                      currentUser.createdAt,
+                                  ).toLocaleDateString()
                                 : "N/A"}
                         </Text>
                     </View>
