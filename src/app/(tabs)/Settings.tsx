@@ -4,6 +4,7 @@ import SafeScreen from "../../../components/SafeScreen";
 import images from "../../../constants/images";
 import { posthog } from "../../../lib/posthog";
 import { useCurrentUserQuery } from "../../../lib/subscriptionQueries";
+import { showErrorToast } from "../../../lib/toast";
 
 const Settings = () => {
     const { signOut } = useClerk();
@@ -15,8 +16,8 @@ const Settings = () => {
             await signOut();
             posthog?.capture("user_signed_out");
             posthog?.reset();
-        } catch (error) {
-            console.error("Sign-out failed:", error);
+        } catch {
+            showErrorToast("You cannot sign out");
         }
     };
 

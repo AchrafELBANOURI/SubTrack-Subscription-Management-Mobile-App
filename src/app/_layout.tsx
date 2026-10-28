@@ -8,6 +8,7 @@ import { tokenCache } from "@clerk/expo/token-cache";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 
+import AppToast from "../../components/AppToast";
 import { posthog } from "../../lib/posthog";
 
 void SplashScreen.preventAutoHideAsync();
@@ -101,7 +102,10 @@ function RootLayoutComponent() {
     );
 
     return (
-        <QueryClientProvider client={queryClient}>{app}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+            {app}
+            <AppToast />
+        </QueryClientProvider>
     );
 }
 

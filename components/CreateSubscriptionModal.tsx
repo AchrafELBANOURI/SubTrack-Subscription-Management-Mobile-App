@@ -101,10 +101,8 @@ const CreateSubscriptionModal = ({
             });
 
             resetForm();
-            onClose();
-        } catch (err) {
-            console.error("error : ", err);
         } finally {
+            onClose();
             setIsSubmitting(false);
         }
     };
@@ -124,7 +122,7 @@ const CreateSubscriptionModal = ({
     return (
         <Modal
             visible={visible}
-            transparent
+            transparent={true}
             animationType="slide"
             onRequestClose={handleClose}
         >
