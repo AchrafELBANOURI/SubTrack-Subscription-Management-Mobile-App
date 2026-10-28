@@ -6,6 +6,11 @@ import { isFormValid } from "../../lib/validation";
 import { useState } from "react";
 import { navigateAfterAuth } from "../../lib/navigation";
 import { posthog, posthogLogger } from "../../lib/posthog";
+import {
+    getErrorMessage,
+    showErrorToast,
+    showSuccessToast,
+} from "../../lib/toast";
 
 const SignInForm = () => {
     const { errors, fetchStatus, signIn } = useSignIn();
@@ -24,7 +29,7 @@ const SignInForm = () => {
         });
 
         if (error) {
-            console.error(JSON.stringify(error, null, 2));
+            showErrorToast("Cannot sign in", getErrorMessage(error));
             return;
         }
 
@@ -32,17 +37,19 @@ const SignInForm = () => {
             posthog?.capture("user_signed_in", {
                 authentication_method: "password",
             });
+
             posthogLogger.info("authentication completed", {
                 authentication_method: "password",
                 authentication_outcome: "success",
             });
+
+            showSuccessToast("You signed in successfully!");
 
             await signIn.finalize({
                 navigate: navigateAfterAuth,
             });
         } else if (signIn.status === "needs_second_factor") {
             // Handle MFA if needed (not implemented in this basic flow)
-            console.log("MFA required");
         } else if (signIn.status === "needs_client_trust") {
             // Send email code for client trust verification
             const emailCodeFactor = signIn.supportedSecondFactors.find(
@@ -58,7 +65,7 @@ const SignInForm = () => {
                 });
             }
         } else {
-            console.error("Sign-in attempt not complete:", signIn);
+            showErrorToast("Sign-in attempt not complete");
         }
     };
 

@@ -24,7 +24,7 @@ public class SubscriptionService {
         this.currentUserService = currentUserService;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<SubscriptionResponse> findAll(Jwt jwt) {
         AppUser user = currentUserService.findOrCreate(jwt);
         return subscriptionRepository.findAllByUserIdOrderByRenewalDateAsc(user.getId())

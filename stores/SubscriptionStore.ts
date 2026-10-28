@@ -8,27 +8,37 @@ interface SubscriptionUiState {
     setCreateModalVisible: (visible: boolean) => void;
     setSearchQuery: (value: string) => void;
     toggleExpandedSubscriptionId: (subscriptionId: string | number) => void;
+    resetUiState: () => void;
 }
 
-export const useSubscriptionUiStore = create<SubscriptionUiState>((set, get) => ({
-    expandedSubscriptionId: null,
-    isCreateModalVisible: false,
-    searchQuery: "",
+export const useSubscriptionUiStore = create<SubscriptionUiState>(
+    (set, get) => ({
+        expandedSubscriptionId: null,
+        isCreateModalVisible: false,
+        searchQuery: "",
 
-    setExpandedSubscriptionId: (subscriptionId) =>
-        set({ expandedSubscriptionId: subscriptionId }),
+        setExpandedSubscriptionId: (subscriptionId) =>
+            set({ expandedSubscriptionId: subscriptionId }),
 
-    setCreateModalVisible: (visible) =>
-        set({ isCreateModalVisible: visible }),
+        setCreateModalVisible: (visible) =>
+            set({ isCreateModalVisible: visible }),
 
-    setSearchQuery: (value) => set({ searchQuery: value }),
+        setSearchQuery: (value) => set({ searchQuery: value }),
 
-    toggleExpandedSubscriptionId: (subscriptionId) => {
-        const { expandedSubscriptionId } = get();
-        const isExpanding = expandedSubscriptionId !== subscriptionId;
+        toggleExpandedSubscriptionId: (subscriptionId) => {
+            const { expandedSubscriptionId } = get();
+            const isExpanding = expandedSubscriptionId !== subscriptionId;
 
-        set({
-            expandedSubscriptionId: isExpanding ? subscriptionId : null,
-        });
-    },
-}));
+            set({
+                expandedSubscriptionId: isExpanding ? subscriptionId : null,
+            });
+        },
+
+        resetUiState: () =>
+            set({
+                expandedSubscriptionId: null,
+                isCreateModalVisible: false,
+                searchQuery: "",
+            }),
+    }),
+);

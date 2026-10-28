@@ -4,6 +4,7 @@ import { useState } from "react";
 import { View, Text } from "react-native";
 import { isFormValid } from "../../lib/validation";
 import { router } from "expo-router";
+import { getErrorMessage, showErrorToast } from "../../lib/toast";
 
 const SignUpForm = () => {
     const { signUp, errors, fetchStatus } = useSignUp();
@@ -22,7 +23,7 @@ const SignUpForm = () => {
         });
 
         if (error) {
-            console.error(JSON.stringify(error, null, 2));
+            showErrorToast("Cannot Register", getErrorMessage(error));
             return;
         }
 

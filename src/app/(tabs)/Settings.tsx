@@ -1,19 +1,25 @@
 import { Text, View, Pressable, Image } from "react-native";
-import { useClerk, useUser } from "@clerk/expo";
+import { useAuth, useUser } from "@clerk/expo";
 import SafeScreen from "../../../components/SafeScreen";
 import images from "../../../constants/images";
 import { posthog } from "../../../lib/posthog";
 import { useCurrentUserQuery } from "../../../lib/subscriptionQueries";
 import { showErrorToast } from "../../../lib/toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSubscriptionUiStore } from "../../../stores/SubscriptionStore";
 
 const Settings = () => {
-    const { signOut } = useClerk();
+    const resetUiState = useSubscriptionUiStore((state) => state.resetUiState);
+    const { signOut } = useAuth();
     const { user } = useUser();
     const { data: currentUser } = useCurrentUserQuery();
+    const queryClient = useQueryClient();
 
     const handleSignOut = async () => {
         try {
             await signOut();
+            queryClient.clear();
+            resetUiState();
             posthog?.capture("user_signed_out");
             posthog?.reset();
         } catch {

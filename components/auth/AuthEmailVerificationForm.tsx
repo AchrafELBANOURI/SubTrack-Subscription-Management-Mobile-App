@@ -4,6 +4,7 @@ import { navigateAfterAuth } from "../../lib/navigation";
 import { AuthButton, AuthVerifCode } from "@auth";
 import { useState } from "react";
 import { posthog, posthogLogger } from "../../lib/posthog";
+import { showErrorToast, showSuccessToast } from "../../lib/toast";
 
 const AuthEmailVerificationForm = () => {
     const { errors, signUp, fetchStatus } = useSignUp();
@@ -16,18 +17,24 @@ const AuthEmailVerificationForm = () => {
         });
 
         if (signUp.status !== "complete") {
-            console.error("Sign-up attempt not complete: ", signUp);
+            showErrorToast("Sign-up attempt not complete");
             return;
         }
 
         posthog?.capture("user_signed_up", {
             verification_method: "email_code",
         });
+
         posthogLogger.info("authentication completed", {
             authentication_method: "email_code",
             authentication_outcome: "success",
             authentication_flow: "sign_up",
         });
+
+        showSuccessToast(
+            "Account successfully registered",
+            "Email verification succeded",
+        );
 
         await signUp.finalize({
             navigate: navigateAfterAuth,

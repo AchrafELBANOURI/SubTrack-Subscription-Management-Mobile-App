@@ -73,7 +73,10 @@ export const useUpdateSubscriptionMutation = () => {
         }) => updateSubscription(getToken, subscriptionId, subscription),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: subscriptionsQueryKey });
-            showSuccessToast("Subscription updated", "Your changes were saved.");
+            showSuccessToast(
+                "Subscription updated",
+                "Your changes were saved.",
+            );
         },
         onError: (error) => {
             showMutationError("update subscription", error);
