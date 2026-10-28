@@ -60,7 +60,9 @@ export default function Index() {
                                     expanded: isExpanding,
                                 });
                                 setExpandedSubId(
-                                    isExpanding ? subscription.id : null,
+                                    isExpanding
+                                        ? subscription.id.toString()
+                                        : null,
                                 );
                             }}
                         />
@@ -78,7 +80,7 @@ export default function Index() {
                         </>
                     }
                     ListFooterComponent={<View className="mt-20"></View>}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item) => item.id.toString()}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={() => (
                         <Text className="home-empty-state">

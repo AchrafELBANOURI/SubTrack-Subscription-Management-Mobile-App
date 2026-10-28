@@ -20,19 +20,45 @@ declare global {
         daysLeft: number;
     }
 
+    interface UpcomingSubscriptionCardProps extends Omit<
+        UpcomingSubscription,
+        "id"
+    > {}
+
+    interface User {
+        id: number;
+        clerkUserId: string;
+        email: string | null;
+        createdAt: string;
+    }
+
     interface Subscription {
-        id: string;
-        icon: ImageSourcePropType;
+        id: string | number;
+        icon?: ImageSourcePropType;
+        name: string;
+        plan?: string | null;
+        frequency?: Frequency;
+        category?: Category | null;
+        paymentMethod?: string | null;
+        status?: string | null;
+        price: number;
+        currency: string;
+        billing: string;
+        startDate?: string | null;
+        renewalDate?: string | null;
+        color?: string | null;
+    }
+
+    interface SubscriptionPayload {
         name: string;
         plan?: string;
-        frequency?: Frequency;
-        category?: Category;
+        category?: string;
         paymentMethod?: string;
         status?: string;
-        startDate?: string;
         price: number;
-        currency?: string;
+        currency: string;
         billing: string;
+        startDate?: string;
         renewalDate?: string;
         color?: string;
     }
