@@ -11,20 +11,6 @@ declare global {
         icon: ImageSourcePropType;
     }
 
-    interface UpcomingSubscription {
-        id: string;
-        icon: ImageSourcePropType;
-        name: string;
-        price: number;
-        currency?: string;
-        daysLeft: number;
-    }
-
-    interface UpcomingSubscriptionCardProps extends Omit<
-        UpcomingSubscription,
-        "id"
-    > {}
-
     interface User {
         id: number;
         clerkUserId: string;

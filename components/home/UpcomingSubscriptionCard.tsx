@@ -1,14 +1,31 @@
 import { View, Text, Image } from "react-native";
 import { formatCurrency } from "../../lib/uttils";
+import dayjs from "dayjs";
 
 const UpcomingSubscriptionCard = ({
     upcomingSubscriptionDetail,
 }: {
-    upcomingSubscriptionDetail: UpcomingSubscriptionCardProps;
+    upcomingSubscriptionDetail: Pick<
+        Subscription,
+        "name" | "price" | "currency" | "icon" | "renewalDate"
+    >;
 }) => {
-    const { name, price, currency, daysLeft, icon } =
+    const { name, price, currency, icon, renewalDate } =
         upcomingSubscriptionDetail;
 
+    const daysLeft =
+        renewalDate !== null && renewalDate !== undefined
+            ? dayjs(renewalDate).diff(dayjs(), "day")
+            : null;
+
+    const daysLeftLabel =
+        daysLeft === null
+            ? "No renewal date"
+            : daysLeft <= 0
+              ? "Last day"
+              : daysLeft === 1
+                ? "1 day left"
+                : `${daysLeft} days left`;
     return (
         <View className="upcoming-card">
             <View className="upcoming-row">
@@ -19,7 +36,7 @@ const UpcomingSubscriptionCard = ({
                         {formatCurrency(price, currency)}
                     </Text>
                     <Text className="upcoming-meta" numberOfLines={1}>
-                        {daysLeft > 1 ? `${daysLeft} days left` : "Last Day"}
+                        {daysLeftLabel}
                     </Text>
                 </View>
             </View>
