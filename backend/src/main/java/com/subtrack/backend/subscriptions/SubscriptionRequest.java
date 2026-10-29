@@ -19,6 +19,5 @@ public record SubscriptionRequest(
         @NotBlank String frequency,
         @Valid FrequencyPeriod frequencyPeriod,
         Instant renewalDate,
-        String color,
-        Integer icon) {
+        String color) {
 }

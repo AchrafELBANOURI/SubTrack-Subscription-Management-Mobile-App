@@ -16,12 +16,15 @@ public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final CurrentUserService currentUserService;
+    private final LogoDevService logoDevService;
 
     public SubscriptionService(
             SubscriptionRepository subscriptionRepository,
-            CurrentUserService currentUserService) {
+            CurrentUserService currentUserService,
+        LogoDevService logoDevService) {
         this.subscriptionRepository = subscriptionRepository;
         this.currentUserService = currentUserService;
+        this.logoDevService = logoDevService;
     }
 
     @Transactional
@@ -36,18 +39,32 @@ public class SubscriptionService {
     @Transactional
     public SubscriptionResponse create(Jwt jwt, SubscriptionRequest request) {
         AppUser user = currentUserService.findOrCreate(jwt);
+        
+        String domain = logoDevService.findDomainByName(request.name());
+        
+        Subscription subscription = new Subscription(user, request);
+
+        subscription.setIcon(domain);
+        
         return SubscriptionResponse.from(
-                subscriptionRepository.save(new Subscription(user, request)));
+                subscriptionRepository.save(subscription));
     }
 
     @Transactional
     public SubscriptionResponse update(
             Jwt jwt,
             Long subscriptionId,
-            SubscriptionRequest request) {
+            SubscriptionRequest request
+        ){
         AppUser user = currentUserService.findOrCreate(jwt);
         Subscription subscription = findOwnedSubscription(subscriptionId, user.getId());
+
+        String domain = logoDevService.findDomainByName(request.name());
+
         subscription.updateFrom(request);
+        
+        subscription.setIcon(domain);
+        
         return SubscriptionResponse.from(subscription);
     }
 

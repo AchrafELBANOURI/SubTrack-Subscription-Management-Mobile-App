@@ -20,7 +20,7 @@ declare global {
 
     interface Subscription {
         id: string;
-        icon?: ImageSourcePropType;
+        icon?: string;
         name: string;
         plan?: string | null;
         frequency?: Frequency;

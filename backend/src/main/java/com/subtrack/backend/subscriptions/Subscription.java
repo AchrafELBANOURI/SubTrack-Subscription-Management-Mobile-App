@@ -51,7 +51,7 @@ public class Subscription {
     private Instant renewalDate;
     private String color;
 
-    private Integer icon;
+    private String icon;
 
     protected Subscription() {
     }
@@ -81,7 +81,6 @@ public class Subscription {
         
         renewalDate = request.renewalDate();
         color = request.color();
-        icon = request.icon();
     }
 
     public void updateStatus(String status) {
@@ -151,7 +150,11 @@ public class Subscription {
         return color;
     }
 
-    public Integer getIcon() {
+    public String getIcon() {
         return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }

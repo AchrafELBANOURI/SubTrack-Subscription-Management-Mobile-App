@@ -3,6 +3,7 @@ import {
     formatCurrency,
     formatStatusLabel,
     formatSubscriptionDateTime,
+    getLogoUrl,
 } from "../../lib/uttils";
 import { clsx } from "clsx";
 import { icons } from "../../constants/icons";
@@ -92,6 +93,8 @@ const SubscriptionCard = ({
         }
     };
 
+    const logoUrl = subscription.icon ? getLogoUrl(subscription.icon!) : null;
+
     return (
         <Pressable
             onPress={onPress}
@@ -108,7 +111,7 @@ const SubscriptionCard = ({
             <View className="sub-head">
                 <View className="sub-main">
                     <Image
-                        source={subscription.icon ?? icons.plus}
+                        source={logoUrl ? { uri: logoUrl } : icons.plus}
                         className="sub-icon"
                     />
                     <View className="sub-copy">

@@ -17,7 +17,7 @@ public record SubscriptionResponse(
         Instant startDate,
         Instant renewalDate,
         String color,
-        Integer icon) {
+        String icon) {
 
     public static SubscriptionResponse from(Subscription subscription) {
         return new SubscriptionResponse(

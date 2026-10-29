@@ -1,13 +1,17 @@
 package com.subtrack.backend.subscriptions;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -22,142 +26,234 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class SubscriptionControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @Test
-    void createsAndListsOnlyTheCurrentUsersSubscriptions() throws Exception {
-        String request = """
-                {
-                    "name": "GitHub Pro",
-                    "plan": "Developer",
-                    "category": "Developer Tools",
-                    "price": 9.99,
-                    "currency": "USD",
-                    "frequency": "Monthly",
-                    "frequencyPeriod": {
-                        "frequency": 1,
-                        "period": "Months"
-                    },
-                    "status": "active",
-                    "icon": 42
-                }
-                """;
+        @MockBean
+        private LogoDevService logoDevService;
 
-        String response = mockMvc.perform(post("/api/subscriptions")
-                        .with(jwt().jwt(jwt -> jwt.subject("user_subscriptions_123")))
-                        .contentType("application/json")
-                        .content(request))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("GitHub Pro"))
-                .andExpect(jsonPath("$.frequencyPeriod.frequency").value(1))
-                .andExpect(jsonPath("$.frequencyPeriod.period").value("Months"))
-                .andExpect(jsonPath("$.icon").value(42))
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        @BeforeEach
+        void configureLogoDevMock() {
+                when(logoDevService.findDomainByName("GitHub")).thenReturn("github.com");
+                when(logoDevService.findDomainByName("Github")).thenReturn("github.com");
+                when(logoDevService.findDomainByName("Notion")).thenReturn("notion.so");
+                when(logoDevService.findDomainByName("Spotify")).thenReturn("spotify.com");
+        }
 
-        long subscriptionId = com.jayway.jsonpath.JsonPath
-                .parse(response)
-                .read("$.id", Long.class);
+        @Test
+        void createsAndListsOnlyTheCurrentUsersSubscriptions() throws Exception {
+                String request = """
+                        {
+                        "name": "GitHub",
+                        "plan": "Developer",
+                        "category": "Developer Tools",
+                        "price": 9.99,
+                        "currency": "USD",
+                        "frequency": "Monthly",
+                        "frequencyPeriod": {
+                                "frequency": 1,
+                                "period": "Months"
+                        },
+                        "status": "active"
+                        }
+                        """;
 
-        mockMvc.perform(get("/api/subscriptions")
-                        .with(jwt().jwt(jwt -> jwt.subject("user_subscriptions_123"))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id").value(subscriptionId));
+                String response = mockMvc.perform(post("/api/subscriptions")
+                                .with(jwt().jwt(jwt -> jwt.subject("user_subscriptions_123")))
+                                .contentType("application/json")
+                                .content(request))
+                        .andExpect(status().isCreated())
+                        .andExpect(jsonPath("$.name").value("GitHub"))
+                        .andExpect(jsonPath("$.frequencyPeriod.frequency").value(1))
+                        .andExpect(jsonPath("$.frequencyPeriod.period").value("Months"))
+                        .andExpect(jsonPath("$.icon").value("github.com"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
-        mockMvc.perform(get("/api/subscriptions")
-                        .with(jwt().jwt(jwt -> jwt.subject("another_user_123"))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
-    }
+                long subscriptionId = com.jayway.jsonpath.JsonPath
+                        .parse(response)
+                        .read("$.id", Long.class);
 
-    @Test
-    void updatesAndDeletesAnOwnedSubscription() throws Exception {
-        String request = """
-                {
-                    "name": "Notion",
-                    "price": 12.00,
-                    "currency": "USD",
-                    "frequency": "Monthly",
-                    "frequencyPeriod": {
-                        "frequency": 1,
-                        "period": "Months"
-                    },
-                    "icon": 7
-                }
-                """;
+                mockMvc.perform(get("/api/subscriptions")
+                                .with(jwt().jwt(jwt -> jwt.subject("user_subscriptions_123"))))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", hasSize(1)))
+                        .andExpect(jsonPath("$[0].id").value(subscriptionId));
 
-        String response = mockMvc.perform(post("/api/subscriptions")
-                        .with(jwt().jwt(jwt -> jwt.subject("user_update_123")))
-                        .contentType("application/json")
-                        .content(request))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                mockMvc.perform(get("/api/subscriptions")
+                                .with(jwt().jwt(jwt -> jwt.subject("another_user_123"))))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", hasSize(0)));
+        }
 
-        long subscriptionId = com.jayway.jsonpath.JsonPath
-                .parse(response)
-                .read("$.id", Long.class);
+        @Test
+        void updatesAndDeletesAnOwnedSubscription() throws Exception {
+                String request = """
+                        {
+                        "name": "Notion",
+                        "price": 12.00,
+                        "currency": "USD",
+                        "frequency": "Monthly",
+                        "frequencyPeriod": {
+                                "frequency": 1,
+                                "period": "Months"
+                        }
+                        }
+                        """;
 
-        String updatedRequest = request
-                .replace("Notion", "Notion Plus")
-                .replace("\"frequency\": \"Monthly\"", "\"frequency\": \"Yearly\"")
-                .replace("\"period\": \"Months\"", "\"period\": \"Years\"")
-                .replace("\"icon\": 7", "\"icon\": 8");
+                String response = mockMvc.perform(post("/api/subscriptions")
+                                .with(jwt().jwt(jwt -> jwt.subject("user_update_123")))
+                                .contentType("application/json")
+                                .content(request))
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
-        mockMvc.perform(put("/api/subscriptions/{id}", subscriptionId)
-                        .with(jwt().jwt(jwt -> jwt.subject("user_update_123")))
-                        .contentType("application/json")
-                        .content(updatedRequest))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Notion Plus"))
-                .andExpect(jsonPath("$.frequencyPeriod.frequency").value(1))
-                .andExpect(jsonPath("$.frequencyPeriod.period").value("Years"))
-                .andExpect(jsonPath("$.icon").value(8));
+                long subscriptionId = com.jayway.jsonpath.JsonPath
+                        .parse(response)
+                        .read("$.id", Long.class);
 
-        mockMvc.perform(delete("/api/subscriptions/{id}", subscriptionId)
-                        .with(jwt().jwt(jwt -> jwt.subject("user_update_123"))))
-                .andExpect(status().isNoContent());
-    }
+                String updatedRequest = request
+                        .replace("Notion", "Github")
+                        .replace("\"frequency\": \"Monthly\"", "\"frequency\": \"Yearly\"")
+                        .replace("\"period\": \"Months\"", "\"period\": \"Years\"");
 
-    @Test
-    void updatesSubscriptionStatusWithAllowedValues() throws Exception {
-        String request = """
-                {
-                    "name": "Spotify",
-                    "price": 10.00,
-                    "currency": "USD",
-                    "frequency": "Monthly"
-                }
-                """;
+                mockMvc.perform(put("/api/subscriptions/{id}", subscriptionId)
+                                .with(jwt().jwt(jwt -> jwt.subject("user_update_123")))
+                                .contentType("application/json")
+                                .content(updatedRequest))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.name").value("Github"))
+                        .andExpect(jsonPath("$.frequencyPeriod.frequency").value(1))
+                        .andExpect(jsonPath("$.frequencyPeriod.period").value("Years"))
+                        .andExpect(jsonPath("$.icon").value("github.com"));
 
-        String response = mockMvc.perform(post("/api/subscriptions")
-                        .with(jwt().jwt(jwt -> jwt.subject("user_status_123")))
-                        .contentType("application/json")
-                        .content(request))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                mockMvc.perform(delete("/api/subscriptions/{id}", subscriptionId)
+                                .with(jwt().jwt(jwt -> jwt.subject("user_update_123"))))
+                        .andExpect(status().isNoContent());
+        }
 
-        long subscriptionId = com.jayway.jsonpath.JsonPath
-                .parse(response)
-                .read("$.id", Long.class);
+        @Test
+        void updatesSubscriptionStatusWithAllowedValues() throws Exception {
+                String request = """
+                        {
+                        "name": "Spotify",
+                        "price": 10.00,
+                        "currency": "USD",
+                        "frequency": "Monthly"
+                        }
+                        """;
 
-        mockMvc.perform(patch("/api/subscriptions/{id}/status/paused", subscriptionId)
-                        .with(jwt().jwt(jwt -> jwt.subject("user_status_123"))))
-                .andExpect(status().isNoContent());
+                String response = mockMvc.perform(post("/api/subscriptions")
+                                .with(jwt().jwt(jwt -> jwt.subject("user_status_123")))
+                                .contentType("application/json")
+                                .content(request))
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
-        mockMvc.perform(get("/api/subscriptions")
-                        .with(jwt().jwt(jwt -> jwt.subject("user_status_123"))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].status").value("paused"));
+                long subscriptionId = com.jayway.jsonpath.JsonPath
+                        .parse(response)
+                        .read("$.id", Long.class);
 
-        mockMvc.perform(patch("/api/subscriptions/{id}/status/cancelled", subscriptionId)
-                        .with(jwt().jwt(jwt -> jwt.subject("user_status_123"))))
-                .andExpect(status().isBadRequest());
-    }
+                mockMvc.perform(patch("/api/subscriptions/{id}/status/paused", subscriptionId)
+                                .with(jwt().jwt(jwt -> jwt.subject("user_status_123"))))
+                        .andExpect(status().isNoContent());
+
+                mockMvc.perform(get("/api/subscriptions")
+                                .with(jwt().jwt(jwt -> jwt.subject("user_status_123"))))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$[0].status").value("paused"));
+
+                mockMvc.perform(patch("/api/subscriptions/{id}/status/cancelled", subscriptionId)
+                                .with(jwt().jwt(jwt -> jwt.subject("user_status_123"))))
+                        .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void persistsGeneratedIconWhenCreatingSubscription() throws Exception {
+                String request = """
+                        {
+                                "name": "GitHub",
+                                "price": 9.99,
+                                "currency": "USD",
+                                "frequency": "Monthly"
+                        }
+                        """;
+
+                String response = mockMvc.perform(post("/api/subscriptions")
+                                .with(jwt().jwt(jwt -> jwt.subject("user_icon_create")))
+                                .contentType("application/json")
+                                .content(request))
+                        .andExpect(status().isCreated())
+                        .andExpect(jsonPath("$.icon").value("github.com"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+                long subscriptionId = com.jayway.jsonpath.JsonPath
+                        .parse(response)
+                        .read("$.id", Long.class);
+
+                mockMvc.perform(get("/api/subscriptions")
+                                .with(jwt().jwt(jwt -> jwt.subject("user_icon_create"))))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$[0].id").value(subscriptionId))
+                        .andExpect(jsonPath("$[0].icon").value("github.com"));
+
+                verify(logoDevService).findDomainByName("GitHub");
+        }
+
+        @Test
+        void updatesGeneratedIconWhenSubscriptionNameChanges() throws Exception {
+                String createRequest = """
+                        {
+                                "name": "Notion",
+                                "price": 12.00,
+                                "currency": "USD",
+                                "frequency": "Monthly"
+                        }
+                        """;
+
+                String response = mockMvc.perform(post("/api/subscriptions")
+                                .with(jwt().jwt(jwt -> jwt.subject("user_icon_update")))
+                                .contentType("application/json")
+                                .content(createRequest))
+                        .andExpect(status().isCreated())
+                        .andExpect(jsonPath("$.icon").value("notion.so"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+                long subscriptionId = com.jayway.jsonpath.JsonPath
+                        .parse(response)
+                        .read("$.id", Long.class);
+
+                String updateRequest = """
+                        {
+                                "name": "Github",
+                                "price": 12.00,
+                                "currency": "USD",
+                                "frequency": "Monthly"
+                        }
+                        """;
+
+                mockMvc.perform(put("/api/subscriptions/{id}", subscriptionId)
+                                .with(jwt().jwt(jwt -> jwt.subject("user_icon_update")))
+                                .contentType("application/json")
+                                .content(updateRequest))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.icon").value("github.com"));
+
+                mockMvc.perform(get("/api/subscriptions")
+                                .with(jwt().jwt(jwt -> jwt.subject("user_icon_update"))))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$[0].icon").value("github.com"));
+
+                verify(logoDevService).findDomainByName("Notion");
+                verify(logoDevService).findDomainByName("Github");
+        }
 }

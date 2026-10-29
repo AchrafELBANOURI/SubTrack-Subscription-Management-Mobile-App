@@ -1,6 +1,7 @@
 import { View, Text, Image } from "react-native";
-import { formatCurrency } from "../../lib/uttils";
+import { formatCurrency, getLogoUrl } from "../../lib/uttils";
 import dayjs from "dayjs";
+import { icons } from "../../constants/icons";
 
 const UpcomingSubscriptionCard = ({
     upcomingSubscriptionDetail,
@@ -12,6 +13,8 @@ const UpcomingSubscriptionCard = ({
 }) => {
     const { name, price, currency, icon, renewalDate } =
         upcomingSubscriptionDetail;
+
+    const logoUrl = icon ? getLogoUrl(icon) : null;
 
     const daysLeft =
         renewalDate !== null && renewalDate !== undefined
@@ -29,7 +32,10 @@ const UpcomingSubscriptionCard = ({
     return (
         <View className="upcoming-card">
             <View className="upcoming-row">
-                <Image source={icon} className="upcoming-icon" />
+                <Image
+                    source={logoUrl ? { uri: logoUrl } : icons.plus}
+                    className="upcoming-icon"
+                />
 
                 <View>
                     <Text className="upcoming-price">

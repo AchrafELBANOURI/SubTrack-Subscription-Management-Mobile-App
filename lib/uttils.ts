@@ -49,3 +49,8 @@ export const getRenewalDateFromForm = (form: FormState) => {
         .add(nextValue.frequency, unitMap[nextValue.period])
         .toISOString();
 };
+
+export function getLogoUrl(domain: string, theme: "light" | "dark" = "light") {
+    const token = process.env.EXPO_PUBLIC_LOGO_DEV_PUBLISHABLE_KEY!;
+    return `https://img.logo.dev/${domain}?token=${token}&size=128&format=png&theme=${theme}`;
+}

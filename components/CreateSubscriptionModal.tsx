@@ -13,8 +13,6 @@ import { useReducer, useState } from "react";
 import { clsx } from "clsx";
 import dayjs from "dayjs";
 
-import { icons } from "../constants/icons";
-
 import { posthog } from "../lib/posthog";
 import {
     CATEGORIES,
@@ -61,7 +59,6 @@ const CreateSubscriptionModal = ({
             category: form.category,
             status: "active",
             renewalDate: getRenewalDateFromForm(form),
-            icon: icons.plus,
             color: CATEGORY_COLORS[form.category],
         };
 

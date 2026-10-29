@@ -12,7 +12,7 @@ spring:
     jpa:
         open-in-view: false
         hibernate:
-            ddl-auto: update
+            ddl-auto: create-drop
     security:
         oauth2:
             resourceserver:
@@ -22,3 +22,7 @@ spring:
 
 server:
     port: ${PORT:8080}
+
+logo:
+    dev:
+        secret-key: ${LOGO_DEV_SECRET_KEY}

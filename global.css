@@ -82,7 +82,7 @@
     }
 
     .home-add-icon {
-        @apply size-12 rounded-full border-primary border-1;
+        @apply size-10 rounded-full border-primary border-1;
     }
 
     .home-balance-card {

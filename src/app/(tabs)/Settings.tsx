@@ -45,11 +45,7 @@ const Settings = () => {
             <View className="auth-card mb-5">
                 <View className="flex-row items-center gap-4 mb-4">
                     <Image
-                        source={
-                            user?.imageUrl
-                                ? { uri: user.imageUrl }
-                                : images.avatar
-                        }
+                        source={images.avatar}
                         className="size-16 rounded-full"
                     />
                     <View className="flex-1">
