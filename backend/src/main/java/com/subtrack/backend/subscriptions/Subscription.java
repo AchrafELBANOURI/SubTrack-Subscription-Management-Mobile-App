@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
@@ -41,11 +42,16 @@ public class Subscription {
     private String currency;
 
     @Column(nullable = false)
-    private String billing;
+    private String frequency;
+
+    private Integer frequencyPeriodFrequency;
+    private String frequencyPeriodPeriod;
 
     private Instant startDate;
     private Instant renewalDate;
     private String color;
+
+    private Integer icon;
 
     protected Subscription() {
     }
@@ -63,10 +69,30 @@ public class Subscription {
         status = request.status();
         price = request.price();
         currency = request.currency();
-        billing = request.billing();
-        startDate = request.startDate();
+        frequency = request.frequency();
+
+        if (request.frequencyPeriod() == null) {
+            frequencyPeriodFrequency = null;
+            frequencyPeriodPeriod = null;
+        } else {
+            frequencyPeriodFrequency = request.frequencyPeriod().frequency();
+            frequencyPeriodPeriod = request.frequencyPeriod().period();
+        }
+        
         renewalDate = request.renewalDate();
         color = request.color();
+        icon = request.icon();
+    }
+
+    public void updateStatus(String status) {
+        this.status = status;
+    }
+
+    @PrePersist
+    void setStartDate() {
+        if (startDate == null) {
+            startDate = Instant.now();
+        }
     }
 
     public Long getId() {
@@ -101,8 +127,16 @@ public class Subscription {
         return currency;
     }
 
-    public String getBilling() {
-        return billing;
+    public String getFrequency() {
+        return frequency;
+    }
+
+    public Integer getFrequencyPeriodFrequency() {
+        return frequencyPeriodFrequency;
+    }
+
+    public String getFrequencyPeriodPeriod() {
+        return frequencyPeriodPeriod;
     }
 
     public Instant getStartDate() {
@@ -115,5 +149,9 @@ public class Subscription {
 
     public String getColor() {
         return color;
+    }
+
+    public Integer getIcon() {
+        return icon;
     }
 }

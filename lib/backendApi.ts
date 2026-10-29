@@ -1,3 +1,5 @@
+import { showErrorToast } from "./toast";
+
 type GetToken = () => Promise<string | null>;
 
 export class BackendApiError extends Error {
@@ -39,10 +41,23 @@ async function requestApi<T>(
         headers.set("Content-Type", "application/json");
     }
 
-    const response = await fetch(`${getApiUrl()}${path}`, {
-        ...options,
-        headers,
-    });
+    let response: Response;
+
+    try {
+        response = await fetch(`${getApiUrl()}${path}`, {
+            ...options,
+            headers,
+        });
+    } catch {
+        showErrorToast(
+            "Unable to connect to the backend. Please check your connection.",
+        );
+
+        throw new BackendApiError(
+            0,
+            "Unable to connect to the backend. Please check your connection.",
+        );
+    }
 
     if (!response.ok) {
         const message = await response.text();
@@ -76,7 +91,7 @@ export const createSubscription = (
 
 export const updateSubscription = (
     getToken: GetToken,
-    subscriptionId: number,
+    subscriptionId: string,
     subscription: SubscriptionPayload,
 ) =>
     requestApi<Subscription>(`/api/subscriptions/${subscriptionId}`, getToken, {
@@ -86,8 +101,29 @@ export const updateSubscription = (
 
 export const deleteSubscription = (
     getToken: GetToken,
-    subscriptionId: number,
+    subscriptionId: string,
 ) =>
     requestApi<void>(`/api/subscriptions/${subscriptionId}`, getToken, {
         method: "DELETE",
     });
+
+export const pauseSubscription = (getToken: GetToken, subscriptionId: string) =>
+    requestApi<void>(
+        `/api/subscriptions/${subscriptionId}/status/paused`,
+        getToken,
+        {
+            method: "PATCH",
+        },
+    );
+
+export const activateSubscription = (
+    getToken: GetToken,
+    subscriptionId: string,
+) =>
+    requestApi<void>(
+        `/api/subscriptions/${subscriptionId}/status/active`,
+        getToken,
+        {
+            method: "PATCH",
+        },
+    );

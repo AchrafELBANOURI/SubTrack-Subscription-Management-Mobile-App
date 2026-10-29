@@ -52,6 +52,13 @@ public class SubscriptionService {
     }
 
     @Transactional
+    public void updateStatus(Jwt jwt, Long subscriptionId, SubscriptionStatus status) {
+        AppUser user = currentUserService.findOrCreate(jwt);
+        Subscription subscription = findOwnedSubscription(subscriptionId, user.getId());
+        subscription.updateStatus(status.value());
+    }
+
+    @Transactional
     public void delete(Jwt jwt, Long subscriptionId) {
         AppUser user = currentUserService.findOrCreate(jwt);
         subscriptionRepository.delete(findOwnedSubscription(subscriptionId, user.getId()));

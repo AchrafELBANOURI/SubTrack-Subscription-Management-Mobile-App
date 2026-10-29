@@ -8,7 +8,7 @@ import {
     Platform,
     ScrollView,
 } from "react-native";
-import { useState } from "react";
+import { useReducer, useState } from "react";
 
 import { clsx } from "clsx";
 import dayjs from "dayjs";
@@ -16,6 +16,16 @@ import dayjs from "dayjs";
 import { icons } from "../constants/icons";
 
 import { posthog } from "../lib/posthog";
+import {
+    CATEGORIES,
+    CATEGORY_COLORS,
+    CURRENCY_OPTIONS,
+    DEFAULT_FORM_STATE,
+    FREQUENCIES,
+} from "../constants/sub-modal-form.constants";
+import { getRenewalDateFromForm } from "../lib/uttils";
+import { validateSubscriptionForm } from "../lib/validation";
+import { formReducer } from "../lib/subscriptionFormReducer";
 
 interface CreateSubscriptionModalProps {
     visible: boolean;
@@ -23,99 +33,57 @@ interface CreateSubscriptionModalProps {
     onSubmit: (subscription: Subscription) => Promise<void>;
 }
 
-const CATEGORY_COLORS: Record<Category, string> = {
-    Entertainment: "#ff6b6b",
-    "AI Tools": "#b8d4e3",
-    "Developer Tools": "#e8def8",
-    Design: "#f5c542",
-    Productivity: "#95e1d3",
-    Other: "#d4d4d4",
-};
-
-const CATEGORIES: Category[] = [
-    "Entertainment",
-    "AI Tools",
-    "Developer Tools",
-    "Design",
-    "Productivity",
-    "Other",
-];
-
 const CreateSubscriptionModal = ({
     visible,
     onClose,
     onSubmit,
 }: CreateSubscriptionModalProps) => {
-    const [name, setName] = useState("");
-    const [price, setPrice] = useState("");
-    const [frequency, setFrequency] = useState<Frequency>("Monthly");
-    const [category, setCategory] = useState<Category>("Other");
+    const [form, dispatch] = useReducer(formReducer, DEFAULT_FORM_STATE);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Improved price validation
-    const isValidPrice = () => {
-        const trimmedPrice = price.trim();
-        if (!trimmedPrice) return false;
-        // Strict numeric pattern check
-        if (!/^\s*[+-]?(\d+(\.\d+)?|\.\d+)\s*$/.test(trimmedPrice))
-            return false;
-        const numValue = Number(trimmedPrice);
-        return Number.isFinite(numValue) && numValue > 0;
-    };
-
-    const isValidForm = name.trim() !== "" && isValidPrice();
+    const isValidForm = validateSubscriptionForm(form.name, form.price);
 
     const handleSubmit = async () => {
         if (!isValidForm || isSubmitting) return;
 
         setIsSubmitting(true);
 
-        const priceValue = Number(price.trim());
+        const priceValue = Number(form.price.trim());
         const now = dayjs();
-        const renewalDate =
-            frequency === "Monthly" ? now.add(1, "month") : now.add(1, "year");
 
         const newSubscription: Subscription = {
             id: `sub-${now.toISOString()}`,
-            name: name.trim(),
+            name: form.name.trim(),
             price: priceValue,
-            currency: "USD",
-            frequency,
-            category,
+            currency: form.currency,
+            frequency: form.frequency,
+            frequencyPeriod: form.frequencyPeriod,
+            category: form.category,
             status: "active",
-            startDate: now.toISOString(),
-            renewalDate: renewalDate.toISOString(),
+            renewalDate: getRenewalDateFromForm(form),
             icon: icons.plus,
-            billing: frequency,
-            color: CATEGORY_COLORS[category],
+            color: CATEGORY_COLORS[form.category],
         };
 
         try {
             await onSubmit(newSubscription);
 
             posthog?.capture("subscription_created", {
-                subscription_name: name.trim(),
+                subscription_name: form.name.trim(),
                 subscription_price: priceValue,
-                subscription_frequency: frequency,
-                subscription_category: category,
+                subscription_frequency: form.frequency,
+                subscription_category: form.category,
             });
 
-            resetForm();
+            dispatch({ type: "reset" });
         } finally {
             onClose();
             setIsSubmitting(false);
         }
     };
 
-    const resetForm = () => {
-        setName("");
-        setPrice("");
-        setFrequency("Monthly");
-        setCategory("Other");
-    };
-
     const handleClose = () => {
-        resetForm();
+        dispatch({ type: "reset" });
         onClose();
     };
 
@@ -162,62 +130,139 @@ const CreateSubscriptionModal = ({
                                     className="auth-input"
                                     placeholder="Subscription name"
                                     placeholderTextColor="rgba(0, 0, 0, 0.4)"
-                                    value={name}
-                                    onChangeText={setName}
+                                    value={form.name}
+                                    onChangeText={(value) =>
+                                        dispatch({
+                                            type: "update",
+                                            field: "name",
+                                            value,
+                                        })
+                                    }
                                 />
                             </View>
 
                             <View className="auth-field">
                                 <Text className="auth-label">Price</Text>
+                                <View className="flex-row items-center gap-3">
+                                    <TextInput
+                                        className="auth-input flex-1"
+                                        placeholder="0.00"
+                                        placeholderTextColor="rgba(0, 0, 0, 0.4)"
+                                        value={form.price}
+                                        onChangeText={(value) =>
+                                            dispatch({
+                                                type: "update",
+                                                field: "price",
+                                                value,
+                                            })
+                                        }
+                                        keyboardType="decimal-pad"
+                                    />
+
+                                    <Pressable
+                                        className="auth-input w-[90px] items-center justify-center"
+                                        onPress={() => {
+                                            const currentIndex =
+                                                CURRENCY_OPTIONS.indexOf(
+                                                    form.currency,
+                                                );
+                                            const nextIndex =
+                                                (currentIndex + 1) %
+                                                CURRENCY_OPTIONS.length;
+                                            dispatch({
+                                                type: "update",
+                                                field: "currency",
+                                                value: CURRENCY_OPTIONS[
+                                                    nextIndex
+                                                ],
+                                            });
+                                        }}
+                                    >
+                                        <Text className="auth-label mb-0">
+                                            {form.currency}
+                                        </Text>
+                                    </Pressable>
+                                </View>
+                            </View>
+
+                            <View className="auth-field">
+                                <Text className="auth-label">Plan</Text>
                                 <TextInput
                                     className="auth-input"
-                                    placeholder="0.00"
+                                    placeholder="free trial | free plan | entreprise plan..."
                                     placeholderTextColor="rgba(0, 0, 0, 0.4)"
-                                    value={price}
-                                    onChangeText={setPrice}
-                                    keyboardType="decimal-pad"
+                                    value={form.plan}
+                                    onChangeText={(value) =>
+                                        dispatch({
+                                            type: "update",
+                                            field: "plan",
+                                            value,
+                                        })
+                                    }
                                 />
                             </View>
 
                             <View className="auth-field">
                                 <Text className="auth-label">Frequency</Text>
                                 <View className="picker-row">
-                                    <Pressable
-                                        className={clsx(
-                                            "picker-option",
-                                            frequency === "Monthly" &&
-                                                "picker-option-active",
-                                        )}
-                                        onPress={() => setFrequency("Monthly")}
-                                    >
-                                        <Text
+                                    {FREQUENCIES.map((value) => (
+                                        <Pressable
+                                            key={value}
                                             className={clsx(
-                                                "picker-option-text",
-                                                frequency === "Monthly" &&
-                                                    "picker-option-text-active",
+                                                "picker-option",
+                                                form.frequency === value &&
+                                                    "picker-option-active",
                                             )}
+                                            onPress={() =>
+                                                dispatch({
+                                                    type: "set-frequency",
+                                                    value,
+                                                })
+                                            }
                                         >
-                                            Monthly
-                                        </Text>
-                                    </Pressable>
-                                    <Pressable
-                                        className={clsx(
-                                            "picker-option",
-                                            frequency === "Yearly" &&
-                                                "picker-option-active",
+                                            <Text
+                                                className={clsx(
+                                                    "picker-option-text",
+                                                    form.frequency === value &&
+                                                        "picker-option-text-active",
+                                                )}
+                                            >
+                                                {value}
+                                            </Text>
+                                        </Pressable>
+                                    ))}
+                                </View>
+                            </View>
+
+                            <View className="auth-field">
+                                <Text className="auth-label">Every</Text>
+                                <View className="flex-row items-center gap-3">
+                                    <TextInput
+                                        className="auth-input flex-1"
+                                        placeholder="1"
+                                        placeholderTextColor="rgba(0, 0, 0, 0.4)"
+                                        value={String(
+                                            form.frequencyPeriod.frequency,
                                         )}
-                                        onPress={() => setFrequency("Yearly")}
-                                    >
-                                        <Text
-                                            className={clsx(
-                                                "picker-option-text",
-                                                frequency === "Yearly" &&
-                                                    "picker-option-text-active",
-                                            )}
-                                        >
-                                            Yearly
-                                        </Text>
-                                    </Pressable>
+                                        onChangeText={(value) => {
+                                            const normalizedValue =
+                                                value.replace(/[^0-9]/g, "") ||
+                                                "0";
+                                            dispatch({
+                                                type: "update",
+                                                field: "frequencyPeriod",
+                                                value: {
+                                                    ...form.frequencyPeriod,
+                                                    frequency:
+                                                        Number(normalizedValue),
+                                                },
+                                            });
+                                        }}
+                                        keyboardType="number-pad"
+                                    />
+                                    <Text className="auth-input flex-[1.1] auth-label mb-0">
+                                        {form.frequencyPeriod.period}
+                                    </Text>
                                 </View>
                             </View>
 
@@ -229,15 +274,21 @@ const CreateSubscriptionModal = ({
                                             key={cat}
                                             className={clsx(
                                                 "category-chip",
-                                                category === cat &&
+                                                form.category === cat &&
                                                     "category-chip-active",
                                             )}
-                                            onPress={() => setCategory(cat)}
+                                            onPress={() =>
+                                                dispatch({
+                                                    type: "update",
+                                                    field: "category",
+                                                    value: cat,
+                                                })
+                                            }
                                         >
                                             <Text
                                                 className={clsx(
                                                     "category-chip-text",
-                                                    category === cat &&
+                                                    form.category === cat &&
                                                         "category-chip-text-active",
                                                 )}
                                             >

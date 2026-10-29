@@ -2,10 +2,12 @@ import { useAuth } from "@clerk/expo";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+    activateSubscription,
     createSubscription,
     deleteSubscription,
     getCurrentUser,
     getSubscriptions,
+    pauseSubscription,
     updateSubscription,
 } from "./backendApi";
 import { getErrorMessage, showErrorToast, showSuccessToast } from "./toast";
@@ -68,7 +70,7 @@ export const useUpdateSubscriptionMutation = () => {
             subscriptionId,
             subscription,
         }: {
-            subscriptionId: number;
+            subscriptionId: string;
             subscription: SubscriptionPayload;
         }) => updateSubscription(getToken, subscriptionId, subscription),
         onSuccess: () => {
@@ -89,7 +91,7 @@ export const useDeleteSubscriptionMutation = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (subscriptionId: number) =>
+        mutationFn: (subscriptionId: string) =>
             deleteSubscription(getToken, subscriptionId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: subscriptionsQueryKey });
@@ -100,6 +102,46 @@ export const useDeleteSubscriptionMutation = () => {
         },
         onError: (error) => {
             showMutationError("delete subscription", error);
+        },
+    });
+};
+
+export const usePauseSubscriptionMutation = () => {
+    const { getToken } = useAuth();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (subscriptionId: string) =>
+            pauseSubscription(getToken, subscriptionId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: subscriptionsQueryKey });
+            showSuccessToast(
+                "Subscription paused",
+                "The subscription has been paused.",
+            );
+        },
+        onError: (error) => {
+            showMutationError("pause subscription", error);
+        },
+    });
+};
+
+export const useActivateSubscriptionMutation = () => {
+    const { getToken } = useAuth();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (subscriptionId: string) =>
+            activateSubscription(getToken, subscriptionId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: subscriptionsQueryKey });
+            showSuccessToast(
+                "Subscription Activated",
+                "The subscription has been activated.",
+            );
+        },
+        onError: (error) => {
+            showMutationError("activate subscription", error);
         },
     });
 };

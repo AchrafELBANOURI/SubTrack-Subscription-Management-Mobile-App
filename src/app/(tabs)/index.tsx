@@ -38,7 +38,7 @@ export default function Index() {
             name: newSubscription.name,
             price: newSubscription.price,
             currency: newSubscription.currency,
-            billing: newSubscription.billing,
+            frequency: newSubscription.frequency,
             plan: newSubscription.plan ?? undefined,
             category: newSubscription.category ?? undefined,
             status: newSubscription.status ?? undefined,
@@ -66,7 +66,7 @@ export default function Index() {
                     data={subscriptions}
                     renderItem={({ item: subscription }) => (
                         <SubscriptionCard
-                            {...subscription}
+                            subscription={subscription}
                             expanded={expandedSubId === subscription.id}
                             onPress={() => {
                                 const isExpanding =

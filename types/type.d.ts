@@ -19,35 +19,23 @@ declare global {
     }
 
     interface Subscription {
-        id: string | number;
+        id: string;
         icon?: ImageSourcePropType;
         name: string;
         plan?: string | null;
         frequency?: Frequency;
+        frequencyPeriod?: FrequencyPeriod;
         category?: Category | null;
         paymentMethod?: string | null;
-        status?: string | null;
+        status?: Status;
         price: number;
-        currency: string;
-        billing: string;
+        currency: Currency;
         startDate?: string | null;
         renewalDate?: string | null;
         color?: string | null;
     }
 
-    interface SubscriptionPayload {
-        name: string;
-        plan?: string;
-        category?: string;
-        paymentMethod?: string;
-        status?: string;
-        price: number;
-        currency: string;
-        billing: string;
-        startDate?: string;
-        renewalDate?: string;
-        color?: string;
-    }
+    interface SubscriptionPayload extends Omit<Subscription, "id"> {}
 
     type Category =
         | "Entertainment"
@@ -57,11 +45,18 @@ declare global {
         | "Productivity"
         | "Other";
 
-    type Frequency = "Monthly" | "Yearly";
+    type Frequency = "Daily" | "Weekly" | "Monthly" | "Yearly";
+
+    type Status = "active" | "paused";
+
+    type FrequencyPeriod = {
+        frequency: number;
+        period: "Days" | "Weeks" | "Months" | "Years";
+    };
+
+    type Currency = "USD" | "EUR" | "MAD";
 
     interface SubscriptionCardProps extends Omit<Subscription, "id"> {
-        expanded: boolean;
-        onPress: () => void;
         onCancelPress?: () => void;
         isCancelling?: boolean;
     }

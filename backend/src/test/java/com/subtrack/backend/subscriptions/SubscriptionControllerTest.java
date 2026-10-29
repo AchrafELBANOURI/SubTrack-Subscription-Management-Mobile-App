@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,8 +34,13 @@ class SubscriptionControllerTest {
                     "category": "Developer Tools",
                     "price": 9.99,
                     "currency": "USD",
-                    "billing": "Monthly",
-                    "status": "active"
+                    "frequency": "Monthly",
+                    "frequencyPeriod": {
+                        "frequency": 1,
+                        "period": "Months"
+                    },
+                    "status": "active",
+                    "icon": 42
                 }
                 """;
 
@@ -44,6 +50,9 @@ class SubscriptionControllerTest {
                         .content(request))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("GitHub Pro"))
+                .andExpect(jsonPath("$.frequencyPeriod.frequency").value(1))
+                .andExpect(jsonPath("$.frequencyPeriod.period").value("Months"))
+                .andExpect(jsonPath("$.icon").value(42))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -71,7 +80,12 @@ class SubscriptionControllerTest {
                     "name": "Notion",
                     "price": 12.00,
                     "currency": "USD",
-                    "billing": "Monthly"
+                    "frequency": "Monthly",
+                    "frequencyPeriod": {
+                        "frequency": 1,
+                        "period": "Months"
+                    },
+                    "icon": 7
                 }
                 """;
 
@@ -88,17 +102,62 @@ class SubscriptionControllerTest {
                 .parse(response)
                 .read("$.id", Long.class);
 
-        String updatedRequest = request.replace("Notion", "Notion Plus");
+        String updatedRequest = request
+                .replace("Notion", "Notion Plus")
+                .replace("\"frequency\": \"Monthly\"", "\"frequency\": \"Yearly\"")
+                .replace("\"period\": \"Months\"", "\"period\": \"Years\"")
+                .replace("\"icon\": 7", "\"icon\": 8");
 
         mockMvc.perform(put("/api/subscriptions/{id}", subscriptionId)
                         .with(jwt().jwt(jwt -> jwt.subject("user_update_123")))
                         .contentType("application/json")
                         .content(updatedRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Notion Plus"));
+                .andExpect(jsonPath("$.name").value("Notion Plus"))
+                .andExpect(jsonPath("$.frequencyPeriod.frequency").value(1))
+                .andExpect(jsonPath("$.frequencyPeriod.period").value("Years"))
+                .andExpect(jsonPath("$.icon").value(8));
 
         mockMvc.perform(delete("/api/subscriptions/{id}", subscriptionId)
                         .with(jwt().jwt(jwt -> jwt.subject("user_update_123"))))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void updatesSubscriptionStatusWithAllowedValues() throws Exception {
+        String request = """
+                {
+                    "name": "Spotify",
+                    "price": 10.00,
+                    "currency": "USD",
+                    "frequency": "Monthly"
+                }
+                """;
+
+        String response = mockMvc.perform(post("/api/subscriptions")
+                        .with(jwt().jwt(jwt -> jwt.subject("user_status_123")))
+                        .contentType("application/json")
+                        .content(request))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        long subscriptionId = com.jayway.jsonpath.JsonPath
+                .parse(response)
+                .read("$.id", Long.class);
+
+        mockMvc.perform(patch("/api/subscriptions/{id}/status/paused", subscriptionId)
+                        .with(jwt().jwt(jwt -> jwt.subject("user_status_123"))))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/subscriptions")
+                        .with(jwt().jwt(jwt -> jwt.subject("user_status_123"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].status").value("paused"));
+
+        mockMvc.perform(patch("/api/subscriptions/{id}/status/cancelled", subscriptionId)
+                        .with(jwt().jwt(jwt -> jwt.subject("user_status_123"))))
+                .andExpect(status().isBadRequest());
     }
 }

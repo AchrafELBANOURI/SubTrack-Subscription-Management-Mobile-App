@@ -12,10 +12,12 @@ public record SubscriptionResponse(
         String status,
         BigDecimal price,
         String currency,
-        String billing,
+        String frequency,
+        FrequencyPeriod frequencyPeriod,
         Instant startDate,
         Instant renewalDate,
-        String color) {
+        String color,
+        Integer icon) {
 
     public static SubscriptionResponse from(Subscription subscription) {
         return new SubscriptionResponse(
@@ -27,9 +29,15 @@ public record SubscriptionResponse(
                 subscription.getStatus(),
                 subscription.getPrice(),
                 subscription.getCurrency(),
-                subscription.getBilling(),
+                subscription.getFrequency(),
+                subscription.getFrequencyPeriodFrequency() == null
+                        ? null
+                        : new FrequencyPeriod(
+                                subscription.getFrequencyPeriodFrequency(),
+                                subscription.getFrequencyPeriodPeriod()),
                 subscription.getStartDate(),
                 subscription.getRenewalDate(),
-                subscription.getColor());
+                subscription.getColor(),
+                subscription.getIcon());
     }
 }

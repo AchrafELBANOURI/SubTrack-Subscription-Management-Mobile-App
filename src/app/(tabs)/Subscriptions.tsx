@@ -52,7 +52,7 @@ const Subscriptions = () => {
                 }
                 renderItem={({ item: subscription }) => (
                     <SubscriptionCard
-                        {...subscription}
+                        subscription={subscription}
                         expanded={expandedId === subscription.id}
                         onPress={() =>
                             toggleExpandedSubscriptionId(subscription.id)
