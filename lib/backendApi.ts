@@ -1,3 +1,4 @@
+import { useAuth } from "@clerk/expo";
 import { showErrorToast } from "./toast";
 
 type GetToken = () => Promise<string | null>;
@@ -127,3 +128,24 @@ export const activateSubscription = (
             method: "PATCH",
         },
     );
+
+export const getExpenseInsights = (getToken: GetToken) =>
+    requestApi<ExpenseInsights>("/api/expenses/insights", getToken);
+
+export const getExpenses = (getToken: GetToken) =>
+    requestApi<Expense[]>("/api/expenses", getToken);
+
+export const processDueRenewals = (getToken: GetToken) =>
+    requestApi<void>("/api/expenses/process-renewals", getToken, {
+        method: "POST",
+    });
+
+export const checkRenewalReminders = (getToken: GetToken) =>
+    requestApi<{ status: string; remindersSent: number }>(
+        "/api/notifications/check-reminders",
+        getToken,
+        {
+            method: "POST",
+        },
+    );
+

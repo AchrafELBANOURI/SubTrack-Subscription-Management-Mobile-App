@@ -10,6 +10,12 @@ import { PostHogProvider, usePostHog } from "posthog-react-native";
 
 import AppToast from "../../components/AppToast";
 import { posthog } from "../../lib/posthog";
+import {
+    initializeNotificationCategories,
+    setupNotificationListeners,
+    syncAllSubscriptionNotifications,
+} from "../../lib/notifications";
+import { useSubscriptionsQuery } from "../../lib/subscriptionQueries";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -51,6 +57,33 @@ function RouteChangeTracker() {
     return null;
 }
 
+function NotificationSync() {
+    const { isSignedIn, getToken } = useAuth();
+    const { data: subscriptions } = useSubscriptionsQuery();
+
+    useEffect(() => {
+        void initializeNotificationCategories();
+    }, []);
+
+    useEffect(() => {
+        if (!isSignedIn || !subscriptions) return;
+        void syncAllSubscriptionNotifications(subscriptions);
+    }, [isSignedIn, subscriptions]);
+
+
+    useEffect(() => {
+        if (!isSignedIn) return;
+
+        const cleanup = setupNotificationListeners(getToken, () => {
+            queryClient.invalidateQueries();
+        });
+
+        return cleanup;
+    }, [isSignedIn, getToken]);
+
+    return null;
+}
+
 function RootLayoutComponent() {
     const { isLoaded: authLoaded } = useAuth();
     const { user } = useUser();
@@ -79,6 +112,7 @@ function RootLayoutComponent() {
         }
     }, [userId, user]);
 
+
     if ((!fontsLoaded && !error) || !authLoaded) {
         return null;
     }
@@ -103,6 +137,7 @@ function RootLayoutComponent() {
 
     return (
         <QueryClientProvider client={queryClient}>
+            <NotificationSync />
             {app}
             <AppToast />
         </QueryClientProvider>

@@ -13,6 +13,6 @@ public class HealthController {
         return new HealthResponse("ok");
     }
 
-    public record HealthResponse(String status) {
+    private record HealthResponse(String status) {
     }
 }

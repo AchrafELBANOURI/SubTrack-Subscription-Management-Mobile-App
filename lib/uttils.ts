@@ -17,7 +17,7 @@ export const formatSubscriptionDateTime = (value?: string): string => {
     if (!value) return "Not provided";
     const parsedDate = dayjs(value);
     return parsedDate.isValid()
-        ? parsedDate.format("MM/DD/YYYY")
+        ? parsedDate.format("DD MMMM YYYY [at] HH:mm")
         : "Invalid Date Format";
 };
 
@@ -53,4 +53,20 @@ export const getRenewalDateFromForm = (form: FormState) => {
 export function getLogoUrl(domain: string, theme: "light" | "dark" = "light") {
     const token = process.env.EXPO_PUBLIC_LOGO_DEV_PUBLISHABLE_KEY!;
     return `https://img.logo.dev/${domain}?token=${token}&size=128&format=png&theme=${theme}`;
+}
+
+export function formatHistoryDate(dateString?: string) {
+    if (!dateString) return "Recently";
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+        });
+    } catch {
+        return dateString;
+    }
 }

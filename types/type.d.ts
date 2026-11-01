@@ -65,10 +65,41 @@ declare global {
         title: string;
     }
 
-    type AuthBrandProps = {
+    interface AuthBrandProps {
         title: string;
         subtitle: string;
     };
+
+    interface WeeklyDayExpense {
+        day: string;
+        date: string;
+        amount: number;
+        isPeak: boolean;
+    }
+
+    interface Expense {
+        id: number;
+        subscriptionId?: number | null;
+        name: string;
+        amount: number;
+        currency: string;
+        category?: string;
+        frequency?: string;
+        icon?: string;
+        color?: string;
+        billingDate: string;
+    }
+
+    interface ExpenseInsights {
+        month: string;
+        totalExpenses: number;
+        previousMonthExpenses: number;
+        percentageChange: number;
+        currency: string;
+        weeklyUpcoming: WeeklyDayExpense[];
+        history: Expense[];
+    }
 }
 
 export {};
+

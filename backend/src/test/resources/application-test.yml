@@ -13,3 +13,7 @@ spring:
                 jwt:
                     issuer-uri: https://test.invalid
                     jwk-set-uri: https://test.invalid/.well-known/jwks.json
+
+clerk:
+    secret-key: ""
+

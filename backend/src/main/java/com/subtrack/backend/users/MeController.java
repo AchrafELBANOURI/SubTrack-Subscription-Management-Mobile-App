@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
-
 @RestController
 @RequestMapping("/api/me")
 public class MeController {
@@ -20,18 +18,6 @@ public class MeController {
 
     @GetMapping
     public MeResponse me(@AuthenticationPrincipal Jwt jwt) {
-        AppUser user = currentUserService.findOrCreate(jwt);
-        return new MeResponse(
-                user.getId(),
-                user.getClerkUserId(),
-                user.getEmail(),
-                user.getCreatedAt());
-    }
-
-    public record MeResponse(
-            Long id,
-            String clerkUserId,
-            String email,
-            Instant createdAt) {
+        return currentUserService.getOrCreateFromJWT(jwt);
     }
 }

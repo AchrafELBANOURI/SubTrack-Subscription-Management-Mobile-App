@@ -56,9 +56,11 @@ public class Subscription {
     protected Subscription() {
     }
 
-    public Subscription(AppUser user, SubscriptionRequest request) {
-        this.user = user;
-        updateFrom(request);
+    public static Subscription from(AppUser user, SubscriptionRequest request) {
+        Subscription subscription = new Subscription();
+        subscription.user = user;
+        subscription.updateFrom(request);
+        return subscription;
     }
 
     public void updateFrom(SubscriptionRequest request) {
@@ -146,6 +148,14 @@ public class Subscription {
         return renewalDate;
     }
 
+    public AppUser getUser() {
+        return user;
+    }
+
+    public void setRenewalDate(Instant renewalDate) {
+        this.renewalDate = renewalDate;
+    }
+
     public String getColor() {
         return color;
     }
@@ -158,3 +168,4 @@ public class Subscription {
         this.icon = icon;
     }
 }
+

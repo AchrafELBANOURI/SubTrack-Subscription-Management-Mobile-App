@@ -1,5 +1,7 @@
 package com.subtrack.backend.subscriptions;
 
+import com.subtrack.backend.expenses.Expense;
+import com.subtrack.backend.expenses.ExpenseRepository;
 import com.subtrack.backend.users.AppUser;
 import com.subtrack.backend.users.CurrentUserService;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -18,13 +21,17 @@ public class SubscriptionService {
     private final CurrentUserService currentUserService;
     private final LogoDevService logoDevService;
 
+    private final ExpenseRepository expenseRepository;
+
     public SubscriptionService(
             SubscriptionRepository subscriptionRepository,
             CurrentUserService currentUserService,
-        LogoDevService logoDevService) {
+            LogoDevService logoDevService,
+            ExpenseRepository expenseRepository) {
         this.subscriptionRepository = subscriptionRepository;
         this.currentUserService = currentUserService;
         this.logoDevService = logoDevService;
+        this.expenseRepository = expenseRepository;
     }
 
     @Transactional
@@ -42,12 +49,18 @@ public class SubscriptionService {
         
         String domain = logoDevService.findDomainByName(request.name());
         
-        Subscription subscription = new Subscription(user, request);
-
+        Subscription subscription = Subscription.from(user, request);
         subscription.setIcon(domain);
         
-        return SubscriptionResponse.from(
-                subscriptionRepository.save(subscription));
+        Subscription saved = subscriptionRepository.save(subscription);
+
+        // When a new subscription is active, record its initial expense
+        if (saved.getStatus() == null || "active".equalsIgnoreCase(saved.getStatus())) {
+            Instant billingDate = saved.getStartDate() != null ? saved.getStartDate() : Instant.now();
+            expenseRepository.save(Expense.from(user, saved, billingDate));
+        }
+
+        return SubscriptionResponse.from(saved);
     }
 
     @Transactional

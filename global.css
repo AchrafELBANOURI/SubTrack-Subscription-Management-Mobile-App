@@ -130,7 +130,7 @@
     }
 
     .upcoming-icon {
-        @apply size-14;
+        @apply size-14 rounded-2xl;
     }
 
     .upcoming-price {
@@ -434,4 +434,86 @@
     .category-chip-text-active {
         @apply text-accent;
     }
+
+    /* Insights */
+    .insights-header {
+        @apply my-3 flex-row items-center justify-between;
+    }
+
+    .circle-icon-btn {
+        @apply size-11 items-center justify-center rounded-full border border-black/15 bg-transparent;
+    }
+
+    .insights-title {
+        @apply text-2xl font-sans-bold text-primary;
+    }
+
+    .insights-chart-card {
+        @apply mb-5 rounded-3xl bg-muted p-5;
+    }
+
+    .insights-expenses-card {
+        @apply mb-6 flex-row items-center justify-between rounded-3xl border border-black/10 bg-card p-5;
+    }
+
+    .insights-expenses-title {
+        @apply text-xl font-sans-bold text-primary;
+    }
+
+    .insights-expenses-date {
+        @apply mt-1 text-sm font-sans-medium text-muted-foreground;
+    }
+
+    .insights-expenses-amount {
+        @apply text-2xl font-sans-bold text-primary;
+    }
+
+    .insights-expenses-percent {
+        @apply mt-1 text-sm font-sans-semibold text-primary/70;
+    }
+
+    .history-card-yellow {
+        @apply mb-3 flex-row items-center justify-between rounded-2xl bg-[#ffd154] p-4;
+    }
+
+    .history-card-mint {
+        @apply mb-3 flex-row items-center justify-between rounded-2xl bg-[#8fd1bd] p-4;
+    }
+
+    .history-card-default {
+        @apply mb-3 flex-row items-center justify-between rounded-2xl bg-card border border-border p-4;
+    }
+
+    .history-icon-wrapper {
+        @apply mr-3 size-13 items-center justify-center rounded-xl bg-white/40;
+    }
+
+    .history-icon {
+        @apply size-8 rounded-lg ;
+    }
+
+    .history-details {
+        @apply min-w-0 flex-1;
+    }
+
+    .history-name {
+        @apply text-lg font-sans-bold text-primary;
+    }
+
+    .history-date {
+        @apply mt-0.5 text-sm font-sans-medium text-primary/75;
+    }
+
+    .history-pricing {
+        @apply ml-2 shrink-0 items-end;
+    }
+
+    .history-amount {
+        @apply text-lg font-sans-bold text-primary;
+    }
+
+    .history-period {
+        @apply mt-0.5 text-xs font-sans-medium text-primary/70;
+    }
 }
+

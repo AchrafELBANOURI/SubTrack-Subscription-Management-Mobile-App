@@ -1,4 +1,4 @@
-import { FlatList, Text, View } from "react-native";
+import { FlatList, RefreshControl, Text, View } from "react-native";
 
 import "../../../global.css";
 
@@ -16,6 +16,8 @@ import {
     useSubscriptionsQuery,
 } from "../../../lib/subscriptionQueries";
 import { useSubscriptionUiStore } from "../../../stores/SubscriptionStore";
+import { useExpenseInsightsQuery } from "../../../lib/expenseQueries";
+import { colors } from "../../../constants/theme";
 
 export default function Index() {
     const expandedSubId = useSubscriptionUiStore(
@@ -30,8 +32,15 @@ export default function Index() {
     const setCreateModalVisible = useSubscriptionUiStore(
         (state) => state.setCreateModalVisible,
     );
-    const { data: subscriptions = [], isPending } = useSubscriptionsQuery();
+    const { data: subscriptions = [], isPending: isSubscriptionsPending, refetch : refetchSubscription, isRefetching: isSubscriptionsRefetching } = useSubscriptionsQuery();
     const createSubscriptionMutation = useCreateSubscriptionMutation();
+
+    const { data: expenses,refetch: refetchExpenses , isPending: isExpensesPending, isRefetching: isExpensesRefetching } = useExpenseInsightsQuery();
+
+    const handleRefresh = () => {
+        refetchSubscription();
+        refetchExpenses();
+    };
 
     const handleCreateSubscription = async (newSubscription: Subscription) => {
         await createSubscriptionMutation.mutateAsync({
@@ -64,6 +73,18 @@ export default function Index() {
             <View className="screen-container">
                 <FlatList
                     data={subscriptions}
+                    refreshControl={
+                        <RefreshControl 
+                            refreshing={
+                                isExpensesPending || 
+                                isExpensesRefetching || 
+                                isSubscriptionsPending || 
+                                isSubscriptionsRefetching
+                            }
+                            onRefresh={handleRefresh}
+                            tintColor={colors.accent}
+                        />
+                    }
                     renderItem={({ item: subscription }) => (
                         <SubscriptionCard
                             subscription={subscription}
@@ -98,7 +119,11 @@ export default function Index() {
                                     setCreateModalVisible(true)
                                 }
                             />
-                            <HomeBalanceCard />
+                            <HomeBalanceCard 
+                                month={expenses?.month || new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })} 
+                                totalExpenses={expenses?.totalExpenses || 0}
+                                currency={expenses?.currency || "USD"}
+                            />
                             <HomeUpcomingSubscriptions />
                             <ListHeading title="All Subscriptions" />
                         </>
@@ -108,7 +133,8 @@ export default function Index() {
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={() => (
                         <Text className="home-empty-state">
-                            {isPending
+                            {
+                                isSubscriptionsPending
                                 ? "Loading subscriptions..."
                                 : "No Subscriptions yet."}
                         </Text>

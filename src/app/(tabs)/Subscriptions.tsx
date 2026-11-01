@@ -16,6 +16,8 @@ import { useSubscriptionUiStore } from "../../../stores/SubscriptionStore";
 import { icons } from "../../../constants/icons";
 import { posthog } from "../../../lib/posthog";
 import CreateSubscriptionModal from "../../../components/CreateSubscriptionModal";
+import { RefreshControl } from "react-native";
+import { colors } from "../../../constants/theme";
 
 const Subscriptions = () => {
     const {
@@ -27,7 +29,7 @@ const Subscriptions = () => {
         setCreateModalVisible,
     } = useSubscriptionUiStore();
 
-    const { data: subscriptions = [], isPending } = useSubscriptionsQuery();
+    const { data: subscriptions = [], isPending, refetch, isRefetching } = useSubscriptionsQuery();
     const createSubscriptionMutation = useCreateSubscriptionMutation();
 
     const handleCreateSubscription = async (newSubscription: Subscription) => {
@@ -61,7 +63,7 @@ const Subscriptions = () => {
             subscription.category
                 ?.toLowerCase()
                 .includes(searchQuery.toLowerCase()) ||
-            subscription.plan
+            subscription.frequency
                 ?.toLowerCase()
                 .includes(searchQuery.toLowerCase()),
     );
@@ -71,6 +73,16 @@ const Subscriptions = () => {
             <FlatList
                 data={filteredSubscriptions}
                 keyExtractor={(item) => item.id.toString()}
+                refreshControl={                        
+                    <RefreshControl
+                        refreshing={isRefetching}
+                        onRefresh={() => {
+                            void refetch();
+                        }}
+                        tintColor={colors.accent}
+                        progressBackgroundColor={colors.primary}
+                    />
+                }
                 ListHeaderComponent={
                     <View className="px-1 pt-5">
                         <View className="flex-row justify-between">
