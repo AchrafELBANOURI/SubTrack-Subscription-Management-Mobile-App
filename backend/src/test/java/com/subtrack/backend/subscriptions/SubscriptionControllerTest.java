@@ -14,6 +14,9 @@ import com.subtrack.backend.users.UserClerkDetails.UserClerkDetailsBuilder;
 import com.subtrack.backend.expenses.Expense;
 import com.subtrack.backend.expenses.ExpenseRepository;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -156,6 +159,74 @@ class SubscriptionControllerTest {
                 mockMvc.perform(delete("/api/subscriptions/{id}", subscriptionId)
                                 .with(jwt().jwt(jwt -> jwt.subject("user_update_123"))))
                         .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void recalculatesRenewalDateWhenUpdatingFrequencyPeriod() throws Exception {
+                String createRequest = """
+                        {
+                        "name": "Notion",
+                        "price": 12.00,
+                        "currency": "USD",
+                        "frequency": "Monthly",
+                        "frequencyPeriod": {
+                                "frequency": 1,
+                                "period": "Months"
+                        },
+                        "renewalDate": "2030-01-01T00:00:00Z"
+                        }
+                        """;
+
+                String response = mockMvc.perform(post("/api/subscriptions")
+                                .with(jwt().jwt(jwt -> jwt.subject("user_frequency_period_123")))
+                                .contentType("application/json")
+                                .content(createRequest))
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+                long subscriptionId = com.jayway.jsonpath.JsonPath
+                        .parse(response)
+                        .read("$.id", Long.class);
+
+                String updateRequest = createRequest
+                        .replace("\"frequency\": 1", "\"frequency\": 2")
+                        .replace("\"renewalDate\": \"2030-01-01T00:00:00Z\"",
+                                "\"renewalDate\": \"2030-03-01T00:00:00Z\"");
+
+                Instant updateStarted = Instant.now();
+                String updatedResponse = mockMvc.perform(put("/api/subscriptions/{id}", subscriptionId)
+                                .with(jwt().jwt(jwt -> jwt.subject("user_frequency_period_123")))
+                                .contentType("application/json")
+                                .content(updateRequest))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.frequency").value("Monthly"))
+                        .andExpect(jsonPath("$.frequencyPeriod.frequency").value(2))
+                        .andExpect(jsonPath("$.frequencyPeriod.period").value("Months"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+                Instant updateFinished = Instant.now();
+                String renewalDateValue = com.jayway.jsonpath.JsonPath
+                        .parse(updatedResponse)
+                        .read("$.renewalDate", String.class);
+                Instant renewalDate = Instant.parse(renewalDateValue);
+
+                Instant earliestExpectedDate = updateStarted
+                        .atZone(ZoneOffset.UTC)
+                        .plusMonths(2)
+                        .minusSeconds(1)
+                        .toInstant();
+                Instant latestExpectedDate = updateFinished
+                        .atZone(ZoneOffset.UTC)
+                        .plusMonths(2)
+                        .plusSeconds(1)
+                        .toInstant();
+
+                assertThat(renewalDate).isBetween(earliestExpectedDate, latestExpectedDate);
+                assertThat(renewalDate).isNotEqualTo(Instant.parse("2030-03-01T00:00:00Z"));
         }
 
         @Test

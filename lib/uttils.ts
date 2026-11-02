@@ -38,15 +38,11 @@ export const getRenewalDateFromForm = (form: FormState) => {
         Years: "year",
     };
 
-    const nextValue =
-        form.frequency === "Monthly"
-            ? { frequency: 1, period: "Months" as const }
-            : form.frequency === "Yearly"
-              ? { frequency: 1, period: "Years" as const }
-              : form.frequencyPeriod;
-
     return now
-        .add(nextValue.frequency, unitMap[nextValue.period])
+        .add(
+            form.frequencyPeriod.frequency,
+            unitMap[form.frequencyPeriod.period],
+        )
         .toISOString();
 };
 

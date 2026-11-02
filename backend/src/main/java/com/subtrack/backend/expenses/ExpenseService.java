@@ -51,6 +51,12 @@ public class ExpenseService {
     }
 
     @Transactional
+    public void deleteAll(Jwt jwt) {
+        AppUser user = currentUserService.findOrCreate(jwt);
+        expenseRepository.deleteAllByUserId(user.getId());
+    }
+
+    @Transactional
     public ExpenseInsightsResponse getInsights(Jwt jwt) {
         AppUser user = currentUserService.findOrCreate(jwt);
         renewalService.processRenewalsForUser(user);
@@ -119,24 +125,6 @@ public class ExpenseService {
                 .stream()
                 .map(ExpenseResponse::from)
                 .toList();
-
-        // If history is empty, populate from subscriptions for demonstration
-        if (history.isEmpty() && !activeSubscriptions.isEmpty()) {
-            history = activeSubscriptions.stream()
-                    .map(sub -> new ExpenseResponse(
-                            sub.getId(),
-                            sub.getId(),
-                            sub.getName(),
-                            sub.getPrice(),
-                            sub.getCurrency(),
-                            sub.getCategory(),
-                            sub.getFrequency(),
-                            sub.getIcon(),
-                            sub.getColor(),
-                            sub.getRenewalDate() != null ? sub.getRenewalDate() : Instant.now()
-                    ))
-                    .toList();
-        }
 
         String primaryCurrency = activeSubscriptions.stream()
                 .map(Subscription::getCurrency)

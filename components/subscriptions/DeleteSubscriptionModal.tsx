@@ -70,7 +70,7 @@ const DeleteSubscriptionModal = ({
                     >
                         <View className="modal-header">
                             <Text className="modal-title">
-                                Delete Subscription
+                                Remove Subscription
                             </Text>
                             <Pressable
                                 className="modal-close"
@@ -111,7 +111,7 @@ const DeleteSubscriptionModal = ({
                                 disabled={isSubmitting}
                             >
                                 <Text className="auth-button-text">
-                                    {isSubmitting ? "Deleting..." : "Yes"}
+                                    {isSubmitting ? "..." : "Yes"}
                                 </Text>
                             </Pressable>
                             <Pressable

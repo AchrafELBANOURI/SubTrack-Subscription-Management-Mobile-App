@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
     checkRenewalReminders,
+    deleteAllExpenses,
     getExpenseInsights,
     getExpenses,
     processDueRenewals,
@@ -64,6 +65,26 @@ export const useCheckRemindersMutation = () => {
                     `${data.remindersSent} reminder notification(s) dispatched.`,
                 );
             }
+        },
+    });
+};
+
+export const useDeleteAllExpensesMutation = () => {
+    const { getToken } = useAuth();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: () => deleteAllExpenses(getToken),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: expenseInsightsQueryKey });
+            queryClient.invalidateQueries({ queryKey: expensesQueryKey });
+            showSuccessToast(
+                "Expense history cleared",
+                "Your subscriptions were kept and future expenses can still be tracked.",
+            );
+        },
+        onError: (error) => {
+            showErrorToast("Could not clear expense history", getErrorMessage(error));
         },
     });
 };

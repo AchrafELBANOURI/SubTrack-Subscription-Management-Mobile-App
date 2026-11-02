@@ -2,6 +2,7 @@ package com.subtrack.backend.subscriptions;
 
 import com.subtrack.backend.expenses.Expense;
 import com.subtrack.backend.expenses.ExpenseRepository;
+import com.subtrack.backend.expenses.RenewalService;
 import com.subtrack.backend.users.AppUser;
 import com.subtrack.backend.users.CurrentUserService;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -20,6 +21,7 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final CurrentUserService currentUserService;
     private final LogoDevService logoDevService;
+    private final RenewalService renewalService;
 
     private final ExpenseRepository expenseRepository;
 
@@ -27,10 +29,12 @@ public class SubscriptionService {
             SubscriptionRepository subscriptionRepository,
             CurrentUserService currentUserService,
             LogoDevService logoDevService,
+            RenewalService renewalService,
             ExpenseRepository expenseRepository) {
         this.subscriptionRepository = subscriptionRepository;
         this.currentUserService = currentUserService;
         this.logoDevService = logoDevService;
+        this.renewalService = renewalService;
         this.expenseRepository = expenseRepository;
     }
 
@@ -48,7 +52,7 @@ public class SubscriptionService {
         AppUser user = currentUserService.findOrCreate(jwt);
         
         String domain = logoDevService.findDomainByName(request.name());
-        
+
         Subscription subscription = Subscription.from(user, request);
         subscription.setIcon(domain);
         
@@ -73,11 +77,18 @@ public class SubscriptionService {
         Subscription subscription = findOwnedSubscription(subscriptionId, user.getId());
 
         String domain = logoDevService.findDomainByName(request.name());
-
+        
         subscription.updateFrom(request);
-        
+        Instant nextRenewalDate = renewalService.calculateNextRenewalDate(
+            Instant.now(),
+            subscription.getFrequency(),
+            subscription.getFrequencyPeriodFrequency(),
+            subscription.getFrequencyPeriodPeriod());
+
+        subscription.setRenewalDate(nextRenewalDate);
+
         subscription.setIcon(domain);
-        
+
         return SubscriptionResponse.from(subscription);
     }
 

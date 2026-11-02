@@ -6,6 +6,7 @@ import com.subtrack.backend.subscriptions.SubscriptionRepository;
 import com.subtrack.backend.subscriptions.SubscriptionRequest;
 import com.subtrack.backend.users.AppUser;
 import com.subtrack.backend.users.AppUserRepository;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,9 @@ class RenewalAndExpenseTest {
 
     @Autowired
     private RenewalService renewalService;
+
+    @Autowired
+    private ExpenseService expenseService;
 
     private AppUser testUser;
 
@@ -146,5 +150,65 @@ class RenewalAndExpenseTest {
 
         List<Expense> expenses = expenseRepository.findAllByUserIdOrderByBillingDateDesc(testUser.getId());
         assertTrue(expenses.isEmpty());
+    }
+
+    @Test
+    void deletingAllExpensesOnlyDeletesTheCurrentUsersExpenses() {
+        AppUser otherUser = appUserRepository.save(
+                new AppUser("user_other_123", "other@example.com", "Other", "User"));
+
+        Subscription currentUserSubscription = Subscription.from(testUser, new SubscriptionRequest(
+                "Netflix", null, "Entertainment", null, "active",
+                new BigDecimal("15.99"), "USD", "Monthly", null, null, null));
+        Subscription otherUserSubscription = Subscription.from(otherUser, new SubscriptionRequest(
+                "Spotify", null, "Entertainment", null, "active",
+                new BigDecimal("9.99"), "USD", "Monthly", null, null, null));
+        currentUserSubscription = subscriptionRepository.save(currentUserSubscription);
+        otherUserSubscription = subscriptionRepository.save(otherUserSubscription);
+
+        Expense currentUserExpense = expenseRepository.save(
+                Expense.from(testUser, currentUserSubscription, Instant.now()));
+        Expense otherUserExpense = expenseRepository.save(
+                Expense.from(otherUser, otherUserSubscription, Instant.now()));
+
+        Jwt jwt = Jwt.withTokenValue("token")
+                .header("alg", "none")
+                .subject(testUser.getClerkUserId())
+                .build();
+
+        expenseService.deleteAll(jwt);
+
+        assertTrue(expenseRepository.findById(currentUserExpense.getId()).isEmpty());
+        assertTrue(expenseRepository.findById(otherUserExpense.getId()).isPresent());
+    }
+
+    @Test
+    void updatedSubscriptionValuesAreUsedForFutureRenewals() {
+        Instant pastRenewal = Instant.now().minus(Duration.ofDays(1));
+        Subscription subscription = Subscription.from(testUser, new SubscriptionRequest(
+                "Netflix", null, "Entertainment", null, "active",
+                new BigDecimal("10.00"), "USD", "Monthly",
+                new FrequencyPeriod(1, "Months"), pastRenewal, null));
+        subscription.setRenewalDate(pastRenewal);
+        subscription = subscriptionRepository.save(subscription);
+
+        subscription.updateFrom(new SubscriptionRequest(
+                "Netflix", null, "Entertainment", null, "active",
+                new BigDecimal("20.00"), "USD", "Weekly",
+                new FrequencyPeriod(2, "Weeks"), pastRenewal, null));
+
+        renewalService.processRenewalsForUser(testUser);
+
+        Expense expense = expenseRepository.findAllByUserIdOrderByBillingDateDesc(testUser.getId())
+                .get(0);
+        Subscription updatedSubscription = subscriptionRepository.findById(subscription.getId())
+                .orElseThrow();
+
+        assertEquals(0, new BigDecimal("20.00").compareTo(expense.getAmount()));
+        assertEquals("Netflix", expense.getSubscriptionName());
+        assertEquals("Weekly", updatedSubscription.getFrequency());
+        assertEquals(2, updatedSubscription.getFrequencyPeriodFrequency());
+        assertEquals("Weeks", updatedSubscription.getFrequencyPeriodPeriod());
+        assertTrue(updatedSubscription.getRenewalDate().isAfter(pastRenewal.plus(Duration.ofDays(13))));
     }
 }

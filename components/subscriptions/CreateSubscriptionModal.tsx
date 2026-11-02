@@ -236,6 +236,12 @@ const CreateSubscriptionModal = ({
                                         </Pressable>
                                     ))}
                                 </View>
+                                <Text className="modal-note">
+                                    Note: Changing the frequency or frequency
+                                    period only affects future expenses.
+                                    Existing expenses keep the values that were
+                                    recorded when they were created.
+                                </Text>
                             </View>
 
                             <View className="auth-field">

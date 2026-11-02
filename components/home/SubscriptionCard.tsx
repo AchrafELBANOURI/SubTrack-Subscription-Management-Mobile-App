@@ -227,7 +227,7 @@ const SubscriptionCard = ({
                                 className="sub-btn-delete"
                                 onPress={() => setDeleteModalVisible(true)}
                             >
-                                <Text className="text-red-400">Delete</Text>
+                                <Text className="text-red-400">Remove</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 className="sub-btn-update"

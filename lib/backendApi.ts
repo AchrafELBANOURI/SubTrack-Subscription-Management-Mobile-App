@@ -130,6 +130,11 @@ export const getExpenseInsights = (getToken: GetToken) =>
 export const getExpenses = (getToken: GetToken) =>
     requestApi<Expense[]>("/api/expenses", getToken);
 
+export const deleteAllExpenses = (getToken: GetToken) =>
+    requestApi<void>("/api/expenses", getToken, {
+        method: "DELETE",
+    });
+
 export const processDueRenewals = (getToken: GetToken) =>
     requestApi<void>("/api/expenses/process-renewals", getToken, {
         method: "POST",
