@@ -1,25 +1,48 @@
 import { View, Text, Image } from "react-native";
-import { formatCurrency } from "../../lib/uttils";
+import { formatCurrency, getLogoUrl } from "../../lib/uttils";
+import dayjs from "dayjs";
+import { icons } from "../../constants/icons";
 
 const UpcomingSubscriptionCard = ({
     upcomingSubscriptionDetail,
 }: {
-    upcomingSubscriptionDetail: UpcomingSubscriptionCardProps;
+    upcomingSubscriptionDetail: Pick<
+        Subscription,
+        "name" | "price" | "currency" | "icon" | "renewalDate"
+    >;
 }) => {
-    const { name, price, currency, daysLeft, icon } =
+    const { name, price, currency, icon, renewalDate } =
         upcomingSubscriptionDetail;
 
+    const logoUrl = icon ? getLogoUrl(icon) : null;
+
+    const daysLeft =
+        renewalDate !== null && renewalDate !== undefined
+            ? dayjs(renewalDate).diff(dayjs(), "day")
+            : null;
+
+    const daysLeftLabel =
+        daysLeft === null
+            ? "No renewal date"
+            : daysLeft <= 0
+              ? "Last day"
+              : daysLeft === 1
+                ? "1 day left"
+                : `${daysLeft} days left`;
     return (
         <View className="upcoming-card">
             <View className="upcoming-row">
-                <Image source={icon} className="upcoming-icon" />
+                <Image
+                    source={logoUrl ? { uri: logoUrl } : icons.plus}
+                    className="upcoming-icon"
+                />
 
                 <View>
                     <Text className="upcoming-price">
                         {formatCurrency(price, currency)}
                     </Text>
                     <Text className="upcoming-meta" numberOfLines={1}>
-                        {daysLeft > 1 ? `${daysLeft} days left` : "Last Day"}
+                        {daysLeftLabel}
                     </Text>
                 </View>
             </View>

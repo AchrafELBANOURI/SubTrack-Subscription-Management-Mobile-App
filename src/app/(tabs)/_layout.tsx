@@ -7,12 +7,27 @@ import { colors, components } from "../../../constants/theme";
 import { tabs } from "../../../constants/data";
 
 import { useAuth } from "@clerk/expo";
+import { useSubscriptionUiStore } from "../../../stores/SubscriptionStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 const tabBar = components.tabBar;
 
 const TabLayout = () => {
     const { isSignedIn, isLoaded } = useAuth();
     const insets = useSafeAreaInsets();
+    const queryClient = useQueryClient();
+    const resetUiState = useSubscriptionUiStore((state) => state.resetUiState);
+
+    useEffect(() => {
+        if (!isLoaded) return;
+
+        if (!isSignedIn) {
+            queryClient.clear();
+            resetUiState();
+            return;
+        }
+    }, [isLoaded, isSignedIn, resetUiState, queryClient]);
 
     if (!isLoaded) {
         return;

@@ -26,7 +26,6 @@ export const navigateAfterAuth = ({
     decorateUrl,
 }: AuthNavigationParams) => {
     if (session?.currentTask) {
-        console.log(session.currentTask);
         return;
     }
 

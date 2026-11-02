@@ -1,0 +1,43 @@
+spring:
+    config:
+        import:
+            - optional:file:.env[.properties]
+            - optional:file:backend/.env[.properties]
+    application:
+        name: subtrack-backend
+    datasource:
+        url: ${DATABASE_URL}
+        username: ${DATABASE_USERNAME}
+        password: ${DATABASE_PASSWORD}
+    jpa:
+        open-in-view: false
+        hibernate:
+            ddl-auto: update
+    mail:
+        host: ${SPRING_MAIL_HOST:localhost}
+        port: ${SPRING_MAIL_PORT:1025}
+        username: ${SPRING_MAIL_USERNAME:}
+        password: ${SPRING_MAIL_PASSWORD:}
+        properties:
+            mail:
+                smtp:
+                    auth: ${SPRING_MAIL_AUTH:false}
+                    starttls:
+                        enable: ${SPRING_MAIL_STARTTLS:false}
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    issuer-uri: ${CLERK_ISSUER}
+                    jwk-set-uri: ${CLERK_JWKS_URL}
+
+server:
+    port: ${PORT:8080}
+
+clerk:
+    secret-key: ${CLERK_SECRET_KEY:}
+
+logo:
+    dev:
+        secret-key: ${LOGO_DEV_SECRET_KEY}
+

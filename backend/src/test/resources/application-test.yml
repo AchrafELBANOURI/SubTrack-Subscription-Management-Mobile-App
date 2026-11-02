@@ -1,0 +1,19 @@
+spring:
+    datasource:
+        url: jdbc:h2:mem:subtrack;DB_CLOSE_DELAY=-1
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
+    jpa:
+        hibernate:
+            ddl-auto: create-drop
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    issuer-uri: https://test.invalid
+                    jwk-set-uri: https://test.invalid/.well-known/jwks.json
+
+clerk:
+    secret-key: ""
+

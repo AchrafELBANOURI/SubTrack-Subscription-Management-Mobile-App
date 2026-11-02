@@ -4,5 +4,25 @@ export const isValidEmail = (email: string) => emailPattern.test(email);
 
 export const isValidPassword = (password: string) => password.length >= 8;
 
-export const isFormValid = (emailAddress: string, password: string) =>
+export const isValidInput = (name: string) => name.trim() !== "";
+
+export const isSignUpFormValid = (emailAddress: string, password: string, firstName: string, lastName: string) =>
+    isValidEmail(emailAddress) && isValidPassword(password) && isValidInput(firstName) && isValidInput(lastName);
+
+export const isSignInFormValid = (emailAddress: string, password: string) =>
     isValidEmail(emailAddress) && isValidPassword(password);
+
+export const isValidPrice = (price: string) => {
+    const trimmedPrice = price.trim();
+
+    if (!trimmedPrice) return false;
+
+    if (!/^\s*[+-]?(\d+(\.\d+)?|\.\d+)\s*$/.test(trimmedPrice)) return false;
+
+    const numValue = Number(trimmedPrice);
+
+    return Number.isFinite(numValue) && numValue > 0;
+};
+
+export const validateSubscriptionForm = (name: string, price: string) =>
+    name.trim() !== "" && isValidPrice(price);
