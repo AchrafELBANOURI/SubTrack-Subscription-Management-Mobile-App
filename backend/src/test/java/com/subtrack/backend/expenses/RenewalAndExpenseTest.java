@@ -46,7 +46,7 @@ class RenewalAndExpenseTest {
         subscriptionRepository.deleteAll();
         appUserRepository.deleteAll();
 
-        testUser = appUserRepository.save(new AppUser("user_test_123", "test@example.com"));
+        testUser = appUserRepository.save(new AppUser("user_test_123", "test@example.com" , "user_test_first_name", "user_test_last_name"));
     }
 
     @Test

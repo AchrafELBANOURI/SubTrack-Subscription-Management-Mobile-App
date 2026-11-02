@@ -10,3 +10,4 @@ export { default as AuthError } from "./auth/AuthError";
 export { default as AuthForm } from "./auth/AuthForm";
 export { default as SignInForm } from "./auth/SignInForm";
 export { default as SignUpForm } from "./auth/SignUpForm";
+export { default as AuthInput } from "./auth/AuthInput";

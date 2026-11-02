@@ -435,17 +435,18 @@
         @apply text-accent;
     }
 
-    /* Insights */
-    .insights-header {
+    .tab-header {
         @apply my-3 flex-row items-center justify-between;
     }
 
-    .circle-icon-btn {
-        @apply size-11 items-center justify-center rounded-full border border-black/15 bg-transparent;
+    .tab-title {
+        @apply text-2xl font-sans-bold text-primary;
     }
 
-    .insights-title {
-        @apply text-2xl font-sans-bold text-primary;
+    /* Insights */
+
+    .circle-icon-btn {
+        @apply size-11 items-center justify-center rounded-full border border-black/15 bg-transparent;
     }
 
     .insights-chart-card {
@@ -489,7 +490,7 @@
     }
 
     .history-icon {
-        @apply size-8 rounded-lg ;
+        @apply size-8 rounded-lg;
     }
 
     .history-details {
@@ -516,4 +517,3 @@
         @apply mt-0.5 text-xs font-sans-medium text-primary/70;
     }
 }
-

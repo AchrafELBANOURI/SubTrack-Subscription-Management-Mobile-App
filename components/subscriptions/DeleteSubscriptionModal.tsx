@@ -11,7 +11,7 @@ import { useState } from "react";
 
 import { clsx } from "clsx";
 
-import { posthog } from "../lib/posthog";
+import { posthog } from "../../lib/posthog";
 
 interface DeleteSubscriptionModalProps {
     subscription: Subscription;

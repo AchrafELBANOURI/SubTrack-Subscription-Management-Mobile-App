@@ -4,7 +4,12 @@ export const isValidEmail = (email: string) => emailPattern.test(email);
 
 export const isValidPassword = (password: string) => password.length >= 8;
 
-export const isFormValid = (emailAddress: string, password: string) =>
+export const isValidInput = (name: string) => name.trim() !== "";
+
+export const isSignUpFormValid = (emailAddress: string, password: string, firstName: string, lastName: string) =>
+    isValidEmail(emailAddress) && isValidPassword(password) && isValidInput(firstName) && isValidInput(lastName);
+
+export const isSignInFormValid = (emailAddress: string, password: string) =>
     isValidEmail(emailAddress) && isValidPassword(password);
 
 export const isValidPrice = (price: string) => {

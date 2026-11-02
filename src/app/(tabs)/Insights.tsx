@@ -16,6 +16,7 @@ import { useExpenseInsightsQuery } from "../../../lib/expenseQueries";
 import { useInsightsUiStore } from "../../../stores/InsightsStore";
 import "../../../global.css";
 import { colors } from "../../../constants/theme";
+import { useIsFocused } from "expo-router";
 
 export default function Insights() {
     const {
@@ -34,13 +35,12 @@ export default function Insights() {
         isRefetching,
     } = useExpenseInsightsQuery();
 
+    const isFocused = useIsFocused();
+
     const weeklyData =
         insights?.weeklyUpcoming && insights.weeklyUpcoming.length === 7
             ? insights.weeklyUpcoming
             : [];
-
-
-    console.log(weeklyData);
 
     const historyItems =
         insights?.history && insights.history.length > 0
@@ -66,7 +66,7 @@ export default function Insights() {
                     contentContainerStyle={{ paddingBottom: 120 }}
                     refreshControl={
                         <RefreshControl
-                            refreshing={isRefetching}
+                            refreshing={isFocused && isRefetching}
                             onRefresh={() => {
                                 void refetch();
                             }}
@@ -75,10 +75,10 @@ export default function Insights() {
                         />
                     }
                 >
-                    {/* Section: Upcoming */}
+                    {/* Section: This Week Expenses */}
                     <View className="my-3 flex-row items-center justify-between">
                         <Text className="text-2xl font-sans-bold text-primary">
-                            Upcoming
+                            Week expenses
                         </Text>
                     </View>
 
@@ -91,8 +91,14 @@ export default function Insights() {
 
                     {/* Expenses Summary Card */}
                     <ExpensesSummaryCard
-                        month={insights?.month || new Date().toLocaleDateString("en-US", { month: 'long', year: 'numeric' })}
-                        totalAmount={insights?.totalExpenses || 0.00}
+                        month={
+                            insights?.month ||
+                            new Date().toLocaleDateString("en-US", {
+                                month: "long",
+                                year: "numeric",
+                            })
+                        }
+                        totalAmount={insights?.totalExpenses || 0.0}
                         percentageChange={insights?.percentageChange || 0}
                         currency={insights?.currency || "USD"}
                     />
@@ -115,7 +121,10 @@ export default function Insights() {
                     {/* History List */}
                     {isLoading && !insights ? (
                         <View className="py-8 items-center justify-center">
-                            <ActivityIndicator color={colors.accent} size="small" />
+                            <ActivityIndicator
+                                color={colors.accent}
+                                size="small"
+                            />
                         </View>
                     ) : (
                         displayedHistory.map((expense, index) => (

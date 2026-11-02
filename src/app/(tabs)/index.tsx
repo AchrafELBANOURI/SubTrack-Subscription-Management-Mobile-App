@@ -10,14 +10,17 @@ import HomeBalanceCard from "../../../components/home/HomeBalanceCard";
 import HomeUpcomingSubscriptions from "../../../components/home/HomeUpcomingSubscriptions";
 import SubscriptionCard from "../../../components/home/SubscriptionCard";
 import ListHeading from "../../../components/home/ListHeading";
-import CreateSubscriptionModal from "../../../components/CreateSubscriptionModal";
+import CreateSubscriptionModal from "../../../components/subscriptions/CreateSubscriptionModal";
 import {
     useCreateSubscriptionMutation,
+    useCurrentUserQuery,
     useSubscriptionsQuery,
 } from "../../../lib/subscriptionQueries";
 import { useSubscriptionUiStore } from "../../../stores/SubscriptionStore";
 import { useExpenseInsightsQuery } from "../../../lib/expenseQueries";
 import { colors } from "../../../constants/theme";
+import { useUser } from "@clerk/expo";
+import { useIsFocused } from "expo-router";
 
 export default function Index() {
     const expandedSubId = useSubscriptionUiStore(
@@ -32,10 +35,32 @@ export default function Index() {
     const setCreateModalVisible = useSubscriptionUiStore(
         (state) => state.setCreateModalVisible,
     );
-    const { data: subscriptions = [], isPending: isSubscriptionsPending, refetch : refetchSubscription, isRefetching: isSubscriptionsRefetching } = useSubscriptionsQuery();
+
+    const { user } = useUser();
+    const { data: currentUser } = useCurrentUserQuery();
+
+    const firstName = currentUser?.firstName ?? user?.firstName;
+    const lastName = currentUser?.lastName ?? user?.lastName;
+    const email = currentUser?.email ?? user?.emailAddresses[0].emailAddress;
+
+    const fullName =
+        firstName && lastName ? `${firstName} ${lastName}` : (email ?? "User");
+
+    const {
+        data: subscriptions = [],
+        isPending: isSubscriptionsPending,
+        refetch: refetchSubscription,
+        isRefetching: isSubscriptionsRefetching,
+    } = useSubscriptionsQuery();
     const createSubscriptionMutation = useCreateSubscriptionMutation();
 
-    const { data: expenses,refetch: refetchExpenses , isPending: isExpensesPending, isRefetching: isExpensesRefetching } = useExpenseInsightsQuery();
+    const {
+        data: expenses,
+        refetch: refetchExpenses,
+        isRefetching: isExpensesRefetching,
+    } = useExpenseInsightsQuery();
+
+    const isFocused = useIsFocused();
 
     const handleRefresh = () => {
         refetchSubscription();
@@ -74,12 +99,11 @@ export default function Index() {
                 <FlatList
                     data={subscriptions}
                     refreshControl={
-                        <RefreshControl 
+                        <RefreshControl
                             refreshing={
-                                isExpensesPending || 
-                                isExpensesRefetching || 
-                                isSubscriptionsPending || 
-                                isSubscriptionsRefetching
+                                isFocused &&
+                                (isExpensesRefetching ||
+                                    isSubscriptionsRefetching)
                             }
                             onRefresh={handleRefresh}
                             tintColor={colors.accent}
@@ -115,12 +139,19 @@ export default function Index() {
                     ListHeaderComponent={
                         <>
                             <HomeHeader
+                                fullName={fullName}
                                 handlePressAddIcon={() =>
                                     setCreateModalVisible(true)
                                 }
                             />
-                            <HomeBalanceCard 
-                                month={expenses?.month || new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })} 
+                            <HomeBalanceCard
+                                month={
+                                    expenses?.month ||
+                                    new Date().toLocaleDateString("en-US", {
+                                        month: "long",
+                                        year: "numeric",
+                                    })
+                                }
                                 totalExpenses={expenses?.totalExpenses || 0}
                                 currency={expenses?.currency || "USD"}
                             />
@@ -133,8 +164,7 @@ export default function Index() {
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={() => (
                         <Text className="home-empty-state">
-                            {
-                                isSubscriptionsPending
+                            {isSubscriptionsPending
                                 ? "Loading subscriptions..."
                                 : "No Subscriptions yet."}
                         </Text>

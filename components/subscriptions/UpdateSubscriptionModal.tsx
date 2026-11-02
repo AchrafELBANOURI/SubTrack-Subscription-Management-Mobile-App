@@ -11,32 +11,49 @@ import {
 import { useReducer, useState } from "react";
 
 import { clsx } from "clsx";
-import dayjs from "dayjs";
 
-import { posthog } from "../lib/posthog";
+import { posthog } from "../../lib/posthog";
+import { formReducer } from "../../lib/subscriptionFormReducer";
 import {
     CATEGORIES,
     CATEGORY_COLORS,
     CURRENCY_OPTIONS,
-    DEFAULT_FORM_STATE,
     FREQUENCIES,
-} from "../constants/sub-modal-form.constants";
-import { getRenewalDateFromForm } from "../lib/uttils";
-import { validateSubscriptionForm } from "../lib/validation";
-import { formReducer } from "../lib/subscriptionFormReducer";
+} from "../../constants/sub-modal-form.constants";
+import { getRenewalDateFromForm } from "../../lib/uttils";
+import { validateSubscriptionForm } from "../../lib/validation";
 
-interface CreateSubscriptionModalProps {
+interface UpdateSubscriptionModalProps {
+    subscription: Subscription;
     visible: boolean;
     onClose: () => void;
-    onSubmit: (subscription: Subscription) => Promise<void>;
+    onSubmit: (
+        subscriptionId: string,
+        subscription: SubscriptionPayload,
+    ) => Promise<void>;
 }
 
-const CreateSubscriptionModal = ({
+const getInitialState = (subscription: SubscriptionPayload): FormState => ({
+    name: subscription.name ?? "",
+    price: String(subscription.price ?? 0),
+    currency: subscription.currency ?? "USD",
+    plan: subscription.plan ?? "",
+    frequency: subscription.frequency ?? "Monthly",
+    frequencyPeriod: subscription.frequencyPeriod ?? {
+        frequency: 1,
+        period: "Months",
+    },
+    category: subscription.category ?? "Other",
+});
+
+const UpdateSubscriptionModal = ({
+    subscription,
     visible,
     onClose,
     onSubmit,
-}: CreateSubscriptionModalProps) => {
-    const [form, dispatch] = useReducer(formReducer, DEFAULT_FORM_STATE);
+}: UpdateSubscriptionModalProps) => {
+    const initialFormState = getInitialState(subscription);
+    const [form, dispatch] = useReducer(formReducer, initialFormState);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const isValidForm = validateSubscriptionForm(form.name, form.price);
@@ -46,13 +63,9 @@ const CreateSubscriptionModal = ({
 
         setIsSubmitting(true);
 
-        const priceValue = Number(form.price.trim());
-        const now = dayjs();
-
-        const newSubscription: Subscription = {
-            id: `sub-${now.toISOString()}`,
+        const updatedSubscription: SubscriptionPayload = {
             name: form.name.trim(),
-            price: priceValue,
+            price: Number(form.price.trim()),
             currency: form.currency,
             frequency: form.frequency,
             frequencyPeriod: form.frequencyPeriod,
@@ -63,16 +76,19 @@ const CreateSubscriptionModal = ({
         };
 
         try {
-            await onSubmit(newSubscription);
+            await onSubmit(subscription.id, updatedSubscription);
 
             posthog?.capture("subscription_created", {
                 subscription_name: form.name.trim(),
-                subscription_price: priceValue,
+                subscription_price: Number(form.price.trim()),
                 subscription_frequency: form.frequency,
                 subscription_category: form.category,
             });
 
-            dispatch({ type: "reset" });
+            dispatch({
+                type: "reset",
+                initialState: getInitialState(subscription),
+            });
         } finally {
             onClose();
             setIsSubmitting(false);
@@ -80,7 +96,10 @@ const CreateSubscriptionModal = ({
     };
 
     const handleClose = () => {
-        dispatch({ type: "reset" });
+        dispatch({
+            type: "reset",
+            initialState: getInitialState(subscription),
+        });
         onClose();
     };
 
@@ -102,7 +121,7 @@ const CreateSubscriptionModal = ({
                     >
                         <View className="modal-header">
                             <Text className="modal-title">
-                                New Subscription
+                                Update Subscription
                             </Text>
                             <Pressable
                                 className="modal-close"
@@ -183,23 +202,6 @@ const CreateSubscriptionModal = ({
                             </View>
 
                             <View className="auth-field">
-                                <Text className="auth-label">Plan</Text>
-                                <TextInput
-                                    className="auth-input"
-                                    placeholder="free trial | free plan | entreprise plan..."
-                                    placeholderTextColor="rgba(0, 0, 0, 0.4)"
-                                    value={form.plan}
-                                    onChangeText={(value) =>
-                                        dispatch({
-                                            type: "update",
-                                            field: "plan",
-                                            value,
-                                        })
-                                    }
-                                />
-                            </View>
-
-                            <View className="auth-field">
                                 <Text className="auth-label">Frequency</Text>
                                 <View className="picker-row">
                                     {FREQUENCIES.map((value) => (
@@ -257,7 +259,7 @@ const CreateSubscriptionModal = ({
                                         }}
                                         keyboardType="number-pad"
                                     />
-                                    <Text className="auth-input flex-[1.1] auth-label mb-0">
+                                    <Text className="auth-input flex-1 text-center auth-label mb-0">
                                         {form.frequencyPeriod.period}
                                     </Text>
                                 </View>
@@ -307,8 +309,8 @@ const CreateSubscriptionModal = ({
                             >
                                 <Text className="auth-button-text">
                                     {isSubmitting
-                                        ? "Creating..."
-                                        : "Create Subscription"}
+                                        ? "Updating..."
+                                        : "Update Subscription"}
                                 </Text>
                             </Pressable>
                         </ScrollView>
@@ -319,4 +321,4 @@ const CreateSubscriptionModal = ({
     );
 };
 
-export default CreateSubscriptionModal;
+export default UpdateSubscriptionModal;

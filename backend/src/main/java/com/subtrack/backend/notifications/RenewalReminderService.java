@@ -5,6 +5,8 @@ import com.subtrack.backend.subscriptions.SubscriptionRepository;
 import com.subtrack.backend.users.AppUser;
 import com.subtrack.backend.users.AppUserRepository;
 import com.subtrack.backend.users.ClerkUserService;
+import com.subtrack.backend.users.UserClerkDetails;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -111,11 +113,11 @@ public class RenewalReminderService {
 
             // If user's email was null or empty, fetch it directly from Clerk using Clerk API
             if (email == null || email.isBlank()) {
-                String fetchedEmail = clerkUserService.fetchUserEmail(user.getClerkUserId());
-                if (fetchedEmail != null && !fetchedEmail.isBlank()) {
-                    user.updateEmail(fetchedEmail);
+                UserClerkDetails fetched = clerkUserService.fetchUserClerkDetails(user.getClerkUserId());
+                if (fetched != null && !fetched.email().isBlank()) {
+                    user.updateUserDetails(fetched);
                     appUserRepository.save(user);
-                    email = fetchedEmail;
+                    email = fetched.email();
                 }
             }
 

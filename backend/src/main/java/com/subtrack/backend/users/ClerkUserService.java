@@ -1,6 +1,8 @@
 package com.subtrack.backend.users;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.subtrack.backend.users.UserClerkDetails.UserClerkDetailsBuilder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
+import java.util.Objects;
 
 @Service
 public class ClerkUserService {
@@ -34,7 +37,7 @@ public class ClerkUserService {
                 .build();
     }
 
-    public String fetchUserEmail(String clerkUserId) {
+    public UserClerkDetails fetchUserClerkDetails(String clerkUserId) {
         if (clerkUserId == null || clerkUserId.isBlank()) {
             return null;
         }
@@ -59,8 +62,12 @@ public class ClerkUserService {
                     JsonNode.class
             );
 
+            UserClerkDetailsBuilder userClerkDetailsBuilder = UserClerkDetailsBuilder.builder();
+
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 JsonNode body = response.getBody();
+                Objects.requireNonNull(body);
+
                 String primaryEmailId = body.hasNonNull("primary_email_address_id")
                         ? body.get("primary_email_address_id").asText()
                         : null;
@@ -71,16 +78,28 @@ public class ClerkUserService {
                     if (primaryEmailId != null) {
                         for (JsonNode emailNode : emailAddresses) {
                             if (primaryEmailId.equals(emailNode.path("id").asText())) {
-                                return emailNode.path("email_address").asText();
+                                userClerkDetailsBuilder.email(emailNode.path("email_address").asText());
                             }
                         }
                     }
                     // Otherwise fallback to the first email address
                     if (emailAddresses.size() > 0) {
-                        return emailAddresses.get(0).path("email_address").asText();
+                        userClerkDetailsBuilder.email(emailAddresses.get(0).path("email_address").asText());
                     }
                 }
+
+                String firstName = body.hasNonNull("first_name") ? body.get("first_name").asText() : null;
+                String lastName = body.hasNonNull("last_name") ? body.get("last_name").asText() : null;
+
+                if (firstName != null) {
+                    userClerkDetailsBuilder.firstName(firstName);
+                }
+
+                if (lastName != null) {
+                    userClerkDetailsBuilder.lastName(lastName);
+                }
             }
+            return userClerkDetailsBuilder.build();
         } catch (Exception e) {
             log.error("Failed to fetch email from Clerk for user {}: {}", clerkUserId, e.getMessage());
         }

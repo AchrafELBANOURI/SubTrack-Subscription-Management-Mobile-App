@@ -6,6 +6,9 @@ import com.subtrack.backend.subscriptions.SubscriptionRequest;
 import com.subtrack.backend.users.AppUser;
 import com.subtrack.backend.users.AppUserRepository;
 import com.subtrack.backend.users.ClerkUserService;
+import com.subtrack.backend.users.UserClerkDetails;
+import com.subtrack.backend.users.UserClerkDetails.UserClerkDetailsBuilder;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +61,7 @@ class RenewalReminderServiceTest {
         subscriptionRepository.deleteAll();
         appUserRepository.deleteAll();
 
-        user = appUserRepository.save(new AppUser("user_clerk_999", "subscriber@domain.com"));
+        user = appUserRepository.save(new AppUser("user_clerk_999", "subscriber@domain.com" , "user_clerk_first_name","user_clerk_last_name"));
     }
 
     @Test
@@ -102,8 +105,10 @@ class RenewalReminderServiceTest {
 
     @Test
     void fetchesEmailFromClerkWhenAppUserEmailIsNull() {
-        AppUser userWithoutEmail = appUserRepository.save(new AppUser("user_clerk_no_email", null));
-        when(clerkUserService.fetchUserEmail("user_clerk_no_email")).thenReturn("clerk_fetched@domain.com");
+        AppUser userWithoutEmail = appUserRepository.save(new AppUser("user_clerk_no_email", null,"user_clerk_first_name","user_clerk_last_name"));
+        
+        when(clerkUserService.fetchUserClerkDetails("user_clerk_no_email"))
+            .thenReturn(UserClerkDetailsBuilder.builder().email("clerk_fetched@domain.com").firstName("user_clerk_first_name").lastName("user_clerk_last_name").build());
 
         Instant renewalIn7Days = Instant.now().plus(Duration.ofDays(7));
 

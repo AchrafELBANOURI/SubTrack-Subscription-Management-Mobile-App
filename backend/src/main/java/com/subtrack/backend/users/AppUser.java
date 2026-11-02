@@ -24,15 +24,23 @@ public class AppUser {
     @Column
     private String email;
 
+    @Column
+    private String firstName;
+
+    @Column
+    private String lastName;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
     protected AppUser() {
     }
 
-    public AppUser(String clerkUserId, String email) {
+    public AppUser(String clerkUserId, String email, String firstName, String lastName) {
         this.clerkUserId = clerkUserId;
         this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     @PrePersist
@@ -54,8 +62,18 @@ public class AppUser {
         return email;
     }
 
-    public void updateEmail(String email) {
-        this.email = email;
+    public void updateUserDetails(UserClerkDetails userClerkDetails) {
+        this.email = userClerkDetails.email();
+        this.firstName = userClerkDetails.firstName();
+        this.lastName = userClerkDetails.lastName();
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 
     public Instant getCreatedAt() {

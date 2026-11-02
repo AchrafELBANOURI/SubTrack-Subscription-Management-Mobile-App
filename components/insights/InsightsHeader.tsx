@@ -6,9 +6,11 @@ interface InsightsHeaderProps {
     onOptionsPress?: () => void;
 }
 
-export default function InsightsHeader({ onOptionsPress }: InsightsHeaderProps) {
+export default function InsightsHeader({
+    onOptionsPress,
+}: InsightsHeaderProps) {
     return (
-        <View className="insights-header">
+        <View className="tab-header">
             <Pressable
                 className="circle-icon-btn"
                 onPress={() => {
@@ -27,7 +29,7 @@ export default function InsightsHeader({ onOptionsPress }: InsightsHeaderProps) 
                 />
             </Pressable>
 
-            <Text className="insights-title">Monthly Insights</Text>
+            <Text className="tab-title">Monthly Insights</Text>
 
             <Pressable
                 className="circle-icon-btn"

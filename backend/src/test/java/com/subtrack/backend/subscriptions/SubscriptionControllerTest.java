@@ -9,7 +9,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.subtrack.backend.users.ClerkUserService;
+import com.subtrack.backend.users.UserClerkDetails.UserClerkDetailsBuilder;
+
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -31,6 +35,19 @@ class SubscriptionControllerTest {
 
         @MockitoBean
         private LogoDevService logoDevService;
+
+        @MockitoBean
+        private ClerkUserService clerkUserService;
+
+        @BeforeEach
+        void configureClerkMock() {
+                when(clerkUserService.fetchUserClerkDetails(anyString()))
+                        .thenReturn(
+                                UserClerkDetailsBuilder.builder()
+                                        .email("test@example.com")
+                                        .build()
+                        );
+        }
 
         @BeforeEach
         void configureLogoDevMock() {

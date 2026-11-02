@@ -11,7 +11,7 @@ import Animated, {
 
 import { colors } from "../../constants/theme";
 
-const MAX_BAR_HEIGHT = 140;
+const MAX_BAR_HEIGHT = 125;
 const MAX_DATA_VALUE = 45;
 
 interface AnimatedBarProps {
@@ -21,7 +21,12 @@ interface AnimatedBarProps {
     index: number;
 }
 
-export default function AnimatedBar({ item, isSelected, onPress, index }: AnimatedBarProps) {
+export default function AnimatedBar({
+    item,
+    isSelected,
+    onPress,
+    index,
+}: AnimatedBarProps) {
     const rawRatio = Math.min(Math.max(item.amount / MAX_DATA_VALUE, 0.02), 1);
     const targetHeight = rawRatio * MAX_BAR_HEIGHT;
 

@@ -1,11 +1,4 @@
-import {
-    Text,
-    View,
-    TextInput,
-    FlatList,
-    Pressable,
-    Image,
-} from "react-native";
+import { Text, View, TextInput, FlatList, RefreshControl } from "react-native";
 import { SubscriptionCard } from "@home";
 import SafeScreen from "../../../components/SafeScreen";
 import {
@@ -13,11 +6,11 @@ import {
     useSubscriptionsQuery,
 } from "../../../lib/subscriptionQueries";
 import { useSubscriptionUiStore } from "../../../stores/SubscriptionStore";
-import { icons } from "../../../constants/icons";
 import { posthog } from "../../../lib/posthog";
-import CreateSubscriptionModal from "../../../components/CreateSubscriptionModal";
-import { RefreshControl } from "react-native";
+import CreateSubscriptionModal from "../../../components/subscriptions/CreateSubscriptionModal";
 import { colors } from "../../../constants/theme";
+import { useIsFocused } from "expo-router";
+import SubscriptionsHeader from "../../../components/subscriptions/SubscriptionsHeader";
 
 const Subscriptions = () => {
     const {
@@ -29,8 +22,15 @@ const Subscriptions = () => {
         setCreateModalVisible,
     } = useSubscriptionUiStore();
 
-    const { data: subscriptions = [], isPending, refetch, isRefetching } = useSubscriptionsQuery();
+    const {
+        data: subscriptions = [],
+        isPending,
+        refetch,
+        isRefetching,
+    } = useSubscriptionsQuery();
     const createSubscriptionMutation = useCreateSubscriptionMutation();
+
+    const isFocused = useIsFocused();
 
     const handleCreateSubscription = async (newSubscription: Subscription) => {
         await createSubscriptionMutation.mutateAsync({
@@ -70,12 +70,15 @@ const Subscriptions = () => {
 
     return (
         <SafeScreen className="flex-1 bg-background">
+            <SubscriptionsHeader
+                onAddPress={() => setCreateModalVisible(true)}
+            />
             <FlatList
                 data={filteredSubscriptions}
                 keyExtractor={(item) => item.id.toString()}
-                refreshControl={                        
+                refreshControl={
                     <RefreshControl
-                        refreshing={isRefetching}
+                        refreshing={isFocused && isRefetching}
                         onRefresh={() => {
                             void refetch();
                         }}
@@ -84,20 +87,7 @@ const Subscriptions = () => {
                     />
                 }
                 ListHeaderComponent={
-                    <View className="px-1 pt-5">
-                        <View className="flex-row justify-between">
-                            <Text className="text-3xl font-semibold text-dark mb-5">
-                                Subscriptions
-                            </Text>
-                            <Pressable
-                                onPress={() => setCreateModalVisible(true)}
-                            >
-                                <Image
-                                    source={icons.add}
-                                    className="home-add-icon"
-                                />
-                            </Pressable>
-                        </View>
+                    <View>
                         <TextInput
                             className="bg-card rounded-xl px-4 py-3 text-dark mb-4"
                             placeholder="Search subscriptions..."

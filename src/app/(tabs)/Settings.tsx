@@ -7,6 +7,7 @@ import { useCurrentUserQuery } from "../../../lib/subscriptionQueries";
 import { showErrorToast } from "../../../lib/toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSubscriptionUiStore } from "../../../stores/SubscriptionStore";
+import SettingsHeader from "../../../components/settings/SettingsHeader";
 
 const Settings = () => {
     const resetUiState = useSubscriptionUiStore((state) => state.resetUiState);
@@ -27,81 +28,82 @@ const Settings = () => {
         }
     };
 
-    const displayName =
-        user?.firstName ||
-        user?.fullName ||
-        user?.emailAddresses[0]?.emailAddress ||
-        "User";
-
     const email = currentUser?.email ?? user?.emailAddresses[0]?.emailAddress;
+    const firstName = user?.firstName ?? currentUser?.firstName;
+    const lastName = user?.lastName ?? currentUser?.lastName;
+
+    const fullName =
+        firstName && lastName ? `${firstName} ${lastName}` : (email ?? "User");
 
     return (
-        <SafeScreen className="flex-1 bg-background p-5">
-            <Text className="text-3xl font-sans-bold text-primary mb-6">
-                Settings
-            </Text>
+        <SafeScreen className="flex-1 bg-background">
+            <SettingsHeader />
 
-            {/* User Profile Section */}
-            <View className="auth-card mb-5">
-                <View className="flex-row items-center gap-4 mb-4">
-                    <Image
-                        source={images.avatar}
-                        className="size-16 rounded-full"
-                    />
-                    <View className="flex-1">
-                        <Text className="text-lg font-sans-bold text-primary">
-                            {displayName}
-                        </Text>
-                        {email && (
+            <View className="px-5">
+                {/* User Profile Section */}
+                <View className="auth-card mb-5">
+                    <View className="flex-row items-center gap-4 mb-4">
+                        <Image
+                            source={images.avatar}
+                            className="size-16 rounded-full"
+                        />
+                        <View className="flex-1">
+                            {fullName && (
+                                <Text className="text-lg font-sans-bold text-primary">
+                                    {fullName || "User"}
+                                </Text>
+                            )}
+                            {email && (
+                                <Text className="text-sm font-sans-medium text-muted-foreground">
+                                    {email}
+                                </Text>
+                            )}
+                        </View>
+                    </View>
+                </View>
+                {/* Account Section */}
+                <View className="auth-card mb-5">
+                    <Text className="text-base font-sans-semibold text-primary mb-3">
+                        Account
+                    </Text>
+                    <View className="gap-2">
+                        <View className="flex-row justify-between items-center py-2">
                             <Text className="text-sm font-sans-medium text-muted-foreground">
-                                {email}
+                                Account ID
                             </Text>
-                        )}
+                            <Text
+                                className="text-sm font-sans-medium text-primary"
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                            >
+                                {currentUser?.clerkUserId?.substring(0, 20) ||
+                                    "N/A"}
+                            </Text>
+                        </View>
+                        <View className="flex-row justify-between items-center py-2">
+                            <Text className="text-sm font-sans-medium text-muted-foreground">
+                                Joined
+                            </Text>
+                            <Text className="text-sm font-sans-medium text-primary">
+                                {currentUser?.createdAt
+                                    ? new Date(
+                                          currentUser.createdAt,
+                                      ).toLocaleDateString()
+                                    : "N/A"}
+                            </Text>
+                        </View>
                     </View>
                 </View>
+                {/* Sign Out Button */}
+                <Pressable
+                    className="auth-button bg-destructive"
+                    onPress={handleSignOut}
+                >
+                    <Text className="auth-button-text text-white">
+                        Sign Out
+                    </Text>
+                </Pressable>
             </View>
-
-            {/* Account Section */}
-            <View className="auth-card mb-5">
-                <Text className="text-base font-sans-semibold text-primary mb-3">
-                    Account
-                </Text>
-                <View className="gap-2">
-                    <View className="flex-row justify-between items-center py-2">
-                        <Text className="text-sm font-sans-medium text-muted-foreground">
-                            Account ID
-                        </Text>
-                        <Text
-                            className="text-sm font-sans-medium text-primary"
-                            numberOfLines={1}
-                            ellipsizeMode="tail"
-                        >
-                            {currentUser?.clerkUserId?.substring(0, 20) ||
-                                "N/A"}
-                        </Text>
-                    </View>
-                    <View className="flex-row justify-between items-center py-2">
-                        <Text className="text-sm font-sans-medium text-muted-foreground">
-                            Joined
-                        </Text>
-                        <Text className="text-sm font-sans-medium text-primary">
-                            {currentUser?.createdAt
-                                ? new Date(
-                                      currentUser.createdAt,
-                                  ).toLocaleDateString()
-                                : "N/A"}
-                        </Text>
-                    </View>
-                </View>
-            </View>
-
-            {/* Sign Out Button */}
-            <Pressable
-                className="auth-button bg-destructive"
-                onPress={handleSignOut}
-            >
-                <Text className="auth-button-text text-white">Sign Out</Text>
-            </Pressable>
         </SafeScreen>
     );
 };

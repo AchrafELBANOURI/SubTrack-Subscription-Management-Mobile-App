@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { AuthButton, AuthEmail, AuthPassword } from "@auth";
 import { useSignIn } from "@clerk/expo";
 import { router } from "expo-router";
-import { isFormValid } from "../../lib/validation";
+import { isSignInFormValid } from "../../lib/validation";
 import { useState } from "react";
 import { navigateAfterAuth } from "../../lib/navigation";
 import { posthog, posthogLogger } from "../../lib/posthog";
@@ -18,7 +18,7 @@ const SignInForm = () => {
     const [emailAddress, setEmailAddress] = useState("");
     const [password, setPassword] = useState("");
 
-    const formValid = isFormValid(emailAddress, password);
+    const formValid = isSignInFormValid(emailAddress, password);
 
     const handleSubmitSignIn = async () => {
         if (!formValid) return;

@@ -7,7 +7,8 @@ import {
 } from "../../lib/uttils";
 import { clsx } from "clsx";
 import { icons } from "../../constants/icons";
-import UpdateSubscriptionModal from "../UpdateSubscriptionModal";
+import UpdateSubscriptionModal from "../subscriptions/UpdateSubscriptionModal";
+import DeleteSubscriptionModal from "../subscriptions/DeleteSubscriptionModal";
 import { useSubscriptionUiStore } from "../../stores/SubscriptionStore";
 import {
     useActivateSubscriptionMutation,
@@ -16,7 +17,6 @@ import {
     useUpdateSubscriptionMutation,
 } from "../../lib/subscriptionQueries";
 import { posthog } from "../../lib/posthog";
-import DeleteSubscriptionModal from "../DeleteSubscriptionModal";
 import { useState } from "react";
 
 type SubscriptionCardProps = {
