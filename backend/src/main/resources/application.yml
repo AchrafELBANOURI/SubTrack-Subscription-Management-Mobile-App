@@ -34,6 +34,15 @@ spring:
 server:
     port: ${PORT:8080}
 
+subtrack:
+    email:
+        provider: ${SUBTRACK_EMAIL_PROVIDER:smtp}
+        from-email: ${SUBTRACK_EMAIL_FROM_EMAIL:swe.achraf@gmail.com}
+        from-name: ${SUBTRACK_EMAIL_FROM_NAME:SubTrack}
+        resend:
+            api-key: ${RESEND_API_KEY:}
+            endpoint: ${RESEND_API_URL:https://api.resend.com/emails}
+
 clerk:
     secret-key: ${CLERK_SECRET_KEY:}
 
