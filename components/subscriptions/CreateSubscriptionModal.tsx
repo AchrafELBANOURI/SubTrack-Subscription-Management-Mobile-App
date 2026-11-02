@@ -113,7 +113,7 @@ const CreateSubscriptionModal = ({
                         </View>
 
                         <ScrollView
-                            className="p-5"
+                            className="px-5 py-1"
                             showsVerticalScrollIndicator={false}
                             keyboardShouldPersistTaps="handled"
                             contentContainerStyle={{
@@ -180,6 +180,13 @@ const CreateSubscriptionModal = ({
                                         </Text>
                                     </Pressable>
                                 </View>
+                                <Text className="modal-note">
+                                    Note: The first expense is created when this
+                                    subscription is created. After that,
+                                    changing the subscription price will not
+                                    change existing expenses. The new price will
+                                    apply to future expenses.
+                                </Text>
                             </View>
 
                             <View className="auth-field">

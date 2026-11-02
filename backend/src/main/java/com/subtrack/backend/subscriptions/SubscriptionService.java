@@ -91,7 +91,9 @@ public class SubscriptionService {
     @Transactional
     public void delete(Jwt jwt, Long subscriptionId) {
         AppUser user = currentUserService.findOrCreate(jwt);
-        subscriptionRepository.delete(findOwnedSubscription(subscriptionId, user.getId()));
+        Subscription subscription = findOwnedSubscription(subscriptionId, user.getId());
+        expenseRepository.detachFromSubscription(subscription.getId());
+        subscriptionRepository.delete(subscription);
     }
 
     private Subscription findOwnedSubscription(Long subscriptionId, Long userId) {

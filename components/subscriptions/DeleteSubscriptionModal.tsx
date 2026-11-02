@@ -94,6 +94,10 @@ const DeleteSubscriptionModal = ({
                                     Are you sure you want remove this
                                     subscription ?
                                 </Text>
+                                <Text className="modal-note">
+                                    Existing expenses will be kept in your
+                                    history and will not be deleted.
+                                </Text>
                             </View>
                         </ScrollView>
 

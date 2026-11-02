@@ -132,7 +132,7 @@ const UpdateSubscriptionModal = ({
                         </View>
 
                         <ScrollView
-                            className="p-5"
+                            className="px-5 py-1"
                             showsVerticalScrollIndicator={false}
                             keyboardShouldPersistTaps="handled"
                             contentContainerStyle={{
@@ -199,6 +199,12 @@ const UpdateSubscriptionModal = ({
                                         </Text>
                                     </Pressable>
                                 </View>
+                                <Text className="modal-note">
+                                    Note: Changing the price only affects
+                                    future expenses. Existing expenses keep the
+                                    price that was recorded when they were
+                                    created.
+                                </Text>
                             </View>
 
                             <View className="auth-field">

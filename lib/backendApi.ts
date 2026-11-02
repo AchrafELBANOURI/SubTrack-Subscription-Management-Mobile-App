@@ -50,14 +50,9 @@ async function requestApi<T>(
             headers,
         });
     } catch {
-        showErrorToast(
-            "Unable to connect to the backend. Please check your connection.",
-        );
+        showErrorToast("Unable to connect to the backend.");
 
-        throw new BackendApiError(
-            0,
-            "Unable to connect to the backend. Please check your connection.",
-        );
+        throw new BackendApiError(0, "Unable to connect to the backend.");
     }
 
     if (!response.ok) {
@@ -148,4 +143,3 @@ export const checkRenewalReminders = (getToken: GetToken) =>
             method: "POST",
         },
     );
-

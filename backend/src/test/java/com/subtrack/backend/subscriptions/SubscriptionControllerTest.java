@@ -11,7 +11,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.subtrack.backend.users.ClerkUserService;
 import com.subtrack.backend.users.UserClerkDetails.UserClerkDetailsBuilder;
+import com.subtrack.backend.expenses.Expense;
+import com.subtrack.backend.expenses.ExpenseRepository;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -38,6 +41,9 @@ class SubscriptionControllerTest {
 
         @MockitoBean
         private ClerkUserService clerkUserService;
+
+        @Autowired
+        private ExpenseRepository expenseRepository;
 
         @BeforeEach
         void configureClerkMock() {
@@ -150,6 +156,47 @@ class SubscriptionControllerTest {
                 mockMvc.perform(delete("/api/subscriptions/{id}", subscriptionId)
                                 .with(jwt().jwt(jwt -> jwt.subject("user_update_123"))))
                         .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void deletingSubscriptionKeepsHistoricalExpenses() throws Exception {
+                String request = """
+                        {
+                        "name": "Netflix",
+                        "price": 15.99,
+                        "currency": "USD",
+                        "frequency": "Monthly"
+                        }
+                        """;
+
+                String response = mockMvc.perform(post("/api/subscriptions")
+                                .with(jwt().jwt(jwt -> jwt.subject("user_delete_history_123")))
+                                .contentType("application/json")
+                                .content(request))
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+                long subscriptionId = com.jayway.jsonpath.JsonPath
+                        .parse(response)
+                        .read("$.id", Long.class);
+
+                Expense historicalExpense = expenseRepository.findAll().stream()
+                        .filter(expense -> expense.getSubscription() != null
+                                && expense.getSubscription().getId().equals(subscriptionId))
+                        .findFirst()
+                        .orElseThrow();
+
+                mockMvc.perform(delete("/api/subscriptions/{id}", subscriptionId)
+                                .with(jwt().jwt(jwt -> jwt.subject("user_delete_history_123"))))
+                        .andExpect(status().isNoContent());
+
+                Expense preservedExpense = expenseRepository.findById(historicalExpense.getId())
+                        .orElseThrow();
+                assertThat(preservedExpense.getAmount()).isEqualByComparingTo("15.99");
+                assertThat(preservedExpense.getSubscriptionName()).isEqualTo("Netflix");
+                assertThat(preservedExpense.getSubscription()).isNull();
         }
 
         @Test

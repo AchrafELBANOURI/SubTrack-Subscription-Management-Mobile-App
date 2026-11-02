@@ -383,6 +383,10 @@
         @apply text-xl font-sans-bold text-primary;
     }
 
+    .modal-note {
+        @apply text-sm text-muted-foreground border-l-2 border-l-accent pl-1;
+    }
+
     .modal-close {
         @apply size-8 items-center justify-center rounded-full bg-muted;
     }
