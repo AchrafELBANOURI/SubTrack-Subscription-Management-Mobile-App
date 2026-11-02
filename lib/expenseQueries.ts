@@ -66,6 +66,9 @@ export const useCheckRemindersMutation = () => {
                 );
             }
         },
+        onError: (error) => {
+            showErrorToast("Reminder Delivery Failed", getErrorMessage(error));
+        },
     });
 };
 

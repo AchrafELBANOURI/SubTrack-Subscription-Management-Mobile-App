@@ -38,6 +38,7 @@ const Subscriptions = () => {
             price: newSubscription.price,
             currency: newSubscription.currency,
             frequency: newSubscription.frequency,
+            frequencyPeriod: newSubscription.frequencyPeriod,
             plan: newSubscription.plan ?? undefined,
             category: newSubscription.category ?? undefined,
             status: newSubscription.status ?? undefined,

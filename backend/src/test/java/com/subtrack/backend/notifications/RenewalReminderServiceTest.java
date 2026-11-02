@@ -6,7 +6,6 @@ import com.subtrack.backend.subscriptions.SubscriptionRequest;
 import com.subtrack.backend.users.AppUser;
 import com.subtrack.backend.users.AppUserRepository;
 import com.subtrack.backend.users.ClerkUserService;
-import com.subtrack.backend.users.UserClerkDetails;
 import com.subtrack.backend.users.UserClerkDetails.UserClerkDetailsBuilder;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,9 +21,11 @@ import java.time.Duration;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -168,5 +169,35 @@ class RenewalReminderServiceTest {
 
         assertEquals(0, sent);
         verify(emailService, never()).sendRenewalReminderEmail(anyString(), anyString(), any(), anyString(), any(), anyString());
+    }
+
+    @Test
+    void doesNotLogReminderWhenEmailDeliveryFails() {
+        Instant tomorrow = Instant.now().plus(Duration.ofHours(20));
+
+        SubscriptionRequest request = new SubscriptionRequest(
+                "Failed Email Service",
+                "Basic",
+                "Other",
+                "Card",
+                "active",
+                new BigDecimal("5.00"),
+                "USD",
+                "Monthly",
+                null,
+                tomorrow,
+                "#000000"
+        );
+        Subscription sub = Subscription.from(user, request);
+        sub.setRenewalDate(tomorrow);
+        subscriptionRepository.save(sub);
+
+        doThrow(new EmailDeliveryException("Resend failed to deliver the email"))
+                .when(emailService)
+                .sendRenewalReminderEmail(anyString(), anyString(), any(), anyString(), any(), anyString());
+
+        assertThrows(EmailDeliveryException.class, () -> reminderService.checkAndSendReminders());
+
+        assertEquals(0, logRepository.count());
     }
 }
