@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocalSearchParams, router } from "expo-router";
 import { useSignIn } from "@clerk/expo";
 import { AuthForm, AuthMFAVerificationForm } from "@auth";
+import { KeyboardAvoidingView, Platform } from "react-native";
 
 const MFAVerificationScreen = () => {
     const { signIn } = useSignIn();
@@ -20,13 +21,18 @@ const MFAVerificationScreen = () => {
     }
 
     return (
-        <AuthForm
-            header={{
-                title: "Verify your email",
-                subtitle: `We sent a verification code to ${emailAddress}`,
-            }}
-            formDetails={<AuthMFAVerificationForm />}
-        />
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            className="flex-1"
+        >
+            <AuthForm
+                header={{
+                    title: "Verify your email",
+                    subtitle: `We sent a verification code to ${emailAddress}`,
+                }}
+                formDetails={<AuthMFAVerificationForm />}
+            />
+        </KeyboardAvoidingView>
     );
 };
 
