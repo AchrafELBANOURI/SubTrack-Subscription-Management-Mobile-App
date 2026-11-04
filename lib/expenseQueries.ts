@@ -61,7 +61,7 @@ export const useCheckRemindersMutation = () => {
         onSuccess: (data) => {
             if (data?.remindersSent && data.remindersSent > 0) {
                 showSuccessToast(
-                    "Reminders Checked",
+                    "Check Your Inbox or Spam",
                     `${data.remindersSent} reminder notification(s) dispatched.`,
                 );
             }
@@ -81,9 +81,10 @@ export const useDeleteAllExpensesMutation = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: expenseInsightsQueryKey });
             queryClient.invalidateQueries({ queryKey: expensesQueryKey });
+            queryClient.invalidateQueries({ queryKey: subscriptionsQueryKey });
             showSuccessToast(
-                "Expense history cleared",
-                "Your subscriptions were kept and future expenses can still be tracked.",
+                "Expense and subscription history cleared",
+                "All recorded expenses and subscriptions have been permanently deleted.",
             );
         },
         onError: (error) => {

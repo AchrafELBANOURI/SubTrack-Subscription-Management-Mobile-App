@@ -18,8 +18,9 @@ const Subscriptions = () => {
         setSearchQuery,
         expandedSubscriptionId: expandedId,
         toggleExpandedSubscriptionId,
-        isCreateModalVisible,
-        setCreateModalVisible,
+        openModal,
+        openCreateModal,
+        closeModal,
     } = useSubscriptionUiStore();
 
     const {
@@ -72,7 +73,7 @@ const Subscriptions = () => {
     return (
         <SafeScreen className="flex-1 bg-background">
             <SubscriptionsHeader
-                onAddPress={() => setCreateModalVisible(true)}
+                onAddPress={() => openCreateModal("subscriptions")}
             />
             <FlatList
                 data={filteredSubscriptions}
@@ -102,6 +103,7 @@ const Subscriptions = () => {
                 renderItem={({ item: subscription }) => (
                     <SubscriptionCard
                         subscription={subscription}
+                        modalOwner="subscriptions"
                         expanded={expandedId === subscription.id}
                         onPress={() =>
                             toggleExpandedSubscriptionId(subscription.id)
@@ -118,8 +120,11 @@ const Subscriptions = () => {
                 keyboardDismissMode="on-drag" // KeyboardAvoidingView Like behavior
             />
             <CreateSubscriptionModal
-                visible={isCreateModalVisible}
-                onClose={() => setCreateModalVisible(false)}
+                visible={
+                    openModal?.type === "create" &&
+                    openModal.owner === "subscriptions"
+                }
+                onClose={closeModal}
                 onSubmit={handleCreateSubscription}
             />
         </SafeScreen>

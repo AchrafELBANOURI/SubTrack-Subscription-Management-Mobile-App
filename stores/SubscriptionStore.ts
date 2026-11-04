@@ -2,38 +2,57 @@ import { create } from "zustand";
 
 interface SubscriptionUiState {
     expandedSubscriptionId: string | number | null;
-    isCreateModalVisible: boolean;
-    isUpdateModalVisible: boolean;
-    isDeleteModalVisible: boolean;
+    openModal: SubscriptionModal | null;
     searchQuery: string;
     setExpandedSubscriptionId: (subscriptionId: string | number | null) => void;
-    setCreateModalVisible: (visible: boolean) => void;
-    setUpdateModalVisible: (visible: boolean) => void;
-    setDeleteModalVisible: (visible: boolean) => void;
+    openCreateModal: (owner: SubscriptionModalOwner) => void;
+    openUpdateModal: (
+        owner: SubscriptionModalOwner,
+        subscriptionId: string | number,
+    ) => void;
+    openDeleteModal: (
+        owner: SubscriptionModalOwner,
+        subscriptionId: string | number,
+    ) => void;
+    closeModal: () => void;
     setSearchQuery: (value: string) => void;
     toggleExpandedSubscriptionId: (subscriptionId: string | number) => void;
     resetUiState: () => void;
 }
 
+export type SubscriptionModalOwner = "home" | "subscriptions";
+
+type SubscriptionModal =
+    | { type: "create"; owner: SubscriptionModalOwner }
+    | {
+          type: "update";
+          owner: SubscriptionModalOwner;
+          subscriptionId: string | number;
+      }
+    | {
+          type: "delete";
+          owner: SubscriptionModalOwner;
+          subscriptionId: string | number;
+      };
+
 export const useSubscriptionUiStore = create<SubscriptionUiState>(
     (set, get) => ({
         expandedSubscriptionId: null,
-        isCreateModalVisible: false,
-        isUpdateModalVisible: false,
-        isDeleteModalVisible: false,
+        openModal: null,
         searchQuery: "",
 
         setExpandedSubscriptionId: (subscriptionId) =>
             set({ expandedSubscriptionId: subscriptionId }),
 
-        setCreateModalVisible: (visible) =>
-            set({ isCreateModalVisible: visible }),
+        openCreateModal: (owner) => set({ openModal: { type: "create", owner } }),
 
-        setUpdateModalVisible: (visible) =>
-            set({ isUpdateModalVisible: visible }),
+        openUpdateModal: (owner, subscriptionId) =>
+            set({ openModal: { type: "update", owner, subscriptionId } }),
 
-        setDeleteModalVisible: (visible) =>
-            set({ isDeleteModalVisible: visible }),
+        openDeleteModal: (owner, subscriptionId) =>
+            set({ openModal: { type: "delete", owner, subscriptionId } }),
+
+        closeModal: () => set({ openModal: null }),
 
         setSearchQuery: (value) => set({ searchQuery: value }),
 
@@ -49,7 +68,7 @@ export const useSubscriptionUiStore = create<SubscriptionUiState>(
         resetUiState: () =>
             set({
                 expandedSubscriptionId: null,
-                isCreateModalVisible: false,
+                openModal: null,
                 searchQuery: "",
             }),
     }),

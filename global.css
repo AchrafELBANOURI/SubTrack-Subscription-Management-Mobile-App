@@ -312,7 +312,7 @@
     }
 
     .auth-input {
-        @apply rounded-2xl border border-border bg-background px-4 py-4 text-base font-sans-medium text-primary;
+        @apply rounded-2xl border border-border self-stretch bg-background px-5 py-4 text-base font-sans-medium text-primary;
     }
 
     .auth-input-error {
@@ -458,7 +458,7 @@
     }
 
     .insights-chart-card {
-        @apply mb-5 rounded-3xl bg-muted p-5;
+        @apply mb-5 rounded-3xl bg-muted px-5;
     }
 
     .insights-expenses-card {

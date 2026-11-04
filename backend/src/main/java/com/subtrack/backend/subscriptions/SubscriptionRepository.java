@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
+    void deleteAllByUserId(Long userId);
+
     List<Subscription> findAllByUserIdOrderByRenewalDateAsc(Long userId);
 
     Optional<Subscription> findByIdAndUserId(Long id, Long userId);

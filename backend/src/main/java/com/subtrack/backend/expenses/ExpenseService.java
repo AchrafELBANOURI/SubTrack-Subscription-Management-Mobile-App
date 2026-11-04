@@ -54,6 +54,7 @@ public class ExpenseService {
     public void deleteAll(Jwt jwt) {
         AppUser user = currentUserService.findOrCreate(jwt);
         expenseRepository.deleteAllByUserId(user.getId());
+        subscriptionRepository.deleteAllByUserId(user.getId());
     }
 
     @Transactional

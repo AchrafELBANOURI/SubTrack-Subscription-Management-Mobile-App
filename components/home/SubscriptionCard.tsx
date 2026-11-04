@@ -18,25 +18,31 @@ import {
 } from "../../lib/subscriptionQueries";
 import { posthog } from "../../lib/posthog";
 import { useState } from "react";
+import type { SubscriptionModalOwner } from "../../stores/SubscriptionStore";
 
 type SubscriptionCardProps = {
     subscription: Subscription;
     expanded: boolean;
     onPress: () => void;
+    modalOwner: SubscriptionModalOwner;
 };
 
 const SubscriptionCard = ({
     subscription,
     onPress,
     expanded,
+    modalOwner,
 }: SubscriptionCardProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { isUpdateModalVisible, setUpdateModalVisible } =
-        useSubscriptionUiStore();
-
-    const { isDeleteModalVisible, setDeleteModalVisible } =
-        useSubscriptionUiStore();
+    const openModal = useSubscriptionUiStore((state) => state.openModal);
+    const openUpdateModal = useSubscriptionUiStore(
+        (state) => state.openUpdateModal,
+    );
+    const openDeleteModal = useSubscriptionUiStore(
+        (state) => state.openDeleteModal,
+    );
+    const closeModal = useSubscriptionUiStore((state) => state.closeModal);
 
     const updateSubscriptionMutation = useUpdateSubscriptionMutation();
     const deleteSubscriptionMutation = useDeleteSubscriptionMutation();
@@ -225,13 +231,23 @@ const SubscriptionCard = ({
                         <View className="sub-buttons-row">
                             <TouchableOpacity
                                 className="sub-btn-delete"
-                                onPress={() => setDeleteModalVisible(true)}
+                                onPress={() =>
+                                    openDeleteModal(
+                                        modalOwner,
+                                        subscription.id,
+                                    )
+                                }
                             >
                                 <Text className="text-red-400">Remove</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 className="sub-btn-update"
-                                onPress={() => setUpdateModalVisible(true)}
+                                onPress={() =>
+                                    openUpdateModal(
+                                        modalOwner,
+                                        subscription.id,
+                                    )
+                                }
                             >
                                 <Text className="text-blue-400">Update</Text>
                             </TouchableOpacity>
@@ -257,14 +273,22 @@ const SubscriptionCard = ({
                     </View>
                     <UpdateSubscriptionModal
                         subscription={subscription}
-                        visible={isUpdateModalVisible}
-                        onClose={() => setUpdateModalVisible(false)}
+                        visible={
+                            openModal?.type === "update" &&
+                            openModal.owner === modalOwner &&
+                            openModal.subscriptionId === subscription.id
+                        }
+                        onClose={closeModal}
                         onSubmit={handleUpdateSubscription}
                     />
                     <DeleteSubscriptionModal
                         subscription={subscription}
-                        visible={isDeleteModalVisible}
-                        onClose={() => setDeleteModalVisible(false)}
+                        visible={
+                            openModal?.type === "delete" &&
+                            openModal.owner === modalOwner &&
+                            openModal.subscriptionId === subscription.id
+                        }
+                        onClose={closeModal}
                         onSubmit={handleDeleteSubscription}
                     />
                 </View>
