@@ -65,7 +65,7 @@ const DeleteSubscriptionModal = ({
                     onPress={handleClose}
                 >
                     <Pressable
-                        className="w-[50%] bg-background rounded-3xl"
+                        className="w-[95%] md:w-3/4 bg-background rounded-3xl"
                         onPress={(e) => e.stopPropagation()}
                     >
                         <View className="modal-header">

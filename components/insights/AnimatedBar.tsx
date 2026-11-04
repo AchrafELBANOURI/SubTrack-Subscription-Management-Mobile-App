@@ -11,7 +11,7 @@ import Animated, {
 
 import { colors } from "../../constants/theme";
 
-const MAX_BAR_HEIGHT = 125;
+const MAX_BAR_HEIGHT = 115;
 const MAX_DATA_VALUE = 45;
 
 interface AnimatedBarProps {
@@ -27,7 +27,7 @@ export default function AnimatedBar({
     onPress,
     index,
 }: AnimatedBarProps) {
-    const rawRatio = Math.min(Math.max(item.amount / MAX_DATA_VALUE, 0.02), 1);
+    const rawRatio = Math.min(Math.max(item.amount / MAX_DATA_VALUE + 0.02, 0.02), 1);
     const targetHeight = rawRatio * MAX_BAR_HEIGHT;
 
     const animatedHeight = useSharedValue(0);
@@ -63,14 +63,14 @@ export default function AnimatedBar({
     return (
         <Pressable
             onPress={onPress}
-            className="flex-1 items-center justify-end h-full relative"
+            className="flex-1 items-center justify-end h-full relative bottom-0.5"
         >
             {/* Tooltip bubble above selected bar */}
             <Animated.View
                 style={[
                     {
                         position: "absolute",
-                        bottom: targetHeight + 8,
+                        bottom: targetHeight + 22,
                         alignItems: "center",
                         zIndex: 10,
                     },
@@ -113,7 +113,7 @@ export default function AnimatedBar({
 
             {/* Day label below bar */}
             <Text
-                className={`mt-2 text-xs ${
+                className={`mt-1 text-xs ${
                     isSelected
                         ? "font-sans-bold text-accent"
                         : "font-sans-medium text-primary/75"

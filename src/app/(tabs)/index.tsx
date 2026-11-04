@@ -26,15 +26,14 @@ export default function Index() {
     const expandedSubId = useSubscriptionUiStore(
         (state) => state.expandedSubscriptionId,
     );
-    const isModalVisible = useSubscriptionUiStore(
-        (state) => state.isCreateModalVisible,
-    );
+    const openModal = useSubscriptionUiStore((state) => state.openModal);
     const setExpandedSubscriptionId = useSubscriptionUiStore(
         (state) => state.setExpandedSubscriptionId,
     );
-    const setCreateModalVisible = useSubscriptionUiStore(
-        (state) => state.setCreateModalVisible,
+    const openCreateModal = useSubscriptionUiStore(
+        (state) => state.openCreateModal,
     );
+    const closeModal = useSubscriptionUiStore((state) => state.closeModal);
 
     const { user } = useUser();
     const { data: currentUser } = useCurrentUserQuery();
@@ -113,6 +112,7 @@ export default function Index() {
                     renderItem={({ item: subscription }) => (
                         <SubscriptionCard
                             subscription={subscription}
+                            modalOwner="home"
                             expanded={expandedSubId === subscription.id}
                             onPress={() => {
                                 const isExpanding =
@@ -142,7 +142,7 @@ export default function Index() {
                             <HomeHeader
                                 fullName={fullName}
                                 handlePressAddIcon={() =>
-                                    setCreateModalVisible(true)
+                                    openCreateModal("home")
                                 }
                             />
                             <HomeBalanceCard
@@ -174,8 +174,11 @@ export default function Index() {
                 />
 
                 <CreateSubscriptionModal
-                    visible={isModalVisible}
-                    onClose={() => setCreateModalVisible(false)}
+                    visible={
+                        openModal?.type === "create" &&
+                        openModal.owner === "home"
+                    }
+                    onClose={closeModal}
                     onSubmit={handleCreateSubscription}
                 />
             </View>

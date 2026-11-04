@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 
+import "../../global.css";
+
 import { SplashScreen, Stack, usePathname } from "expo-router";
 import { useFonts } from "expo-font";
 

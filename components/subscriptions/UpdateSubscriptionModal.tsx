@@ -249,6 +249,7 @@ const UpdateSubscriptionModal = ({
                                 <Text className="auth-label">Every</Text>
                                 <View className="flex-row items-center gap-3">
                                     <TextInput
+                                        style={{ paddingLeft: 20 }}
                                         className="auth-input flex-1"
                                         placeholder="1"
                                         placeholderTextColor="rgba(0, 0, 0, 0.4)"

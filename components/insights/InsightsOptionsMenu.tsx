@@ -106,7 +106,7 @@ export default function InsightsOptionsMenu({
                             disabled={isPending}
                         >
                             <Text className="text-base font-sans-bold text-primary">
-                                Clear Expense History
+                                Clear Expense And Subscription History
                             </Text>
                         </Pressable>
                     </View>
@@ -128,12 +128,11 @@ export default function InsightsOptionsMenu({
                         onPress={(event) => event.stopPropagation()}
                     >
                         <Text className="text-xl font-sans-bold text-primary">
-                            Clear expense history?
+                            Clear expense and subscription history?
                         </Text>
                         <Text className="text-base text-muted-foreground mt-3">
-                            This permanently deletes all recorded expenses for
-                            your account. Your subscriptions will not be
-                            deleted, and future expenses can still be tracked.
+                            This permanently deletes all recorded expenses and subscriptions for
+                            your account.
                         </Text>
                         <View className="flex-row justify-end gap-3 mt-6">
                             <Pressable
