@@ -17,7 +17,7 @@ interface InsightsUiState {
 }
 
 export const useInsightsUiStore = create<InsightsUiState>((set) => ({
-    selectedDay: new Date().toDateString(),
+    selectedDay: "",
     isOptionsModalVisible: false,
     showAllUpcoming: false,
     showAllHistory: false,
@@ -34,7 +34,7 @@ export const useInsightsUiStore = create<InsightsUiState>((set) => ({
         set((state) => ({ showAllUpcoming: !state.showAllUpcoming })),
     resetUiState: () =>
         set({
-            selectedDay: new Date().toDateString(),
+            selectedDay: "",
             isOptionsModalVisible: false,
             showAllUpcoming: false,
             showAllHistory: false,

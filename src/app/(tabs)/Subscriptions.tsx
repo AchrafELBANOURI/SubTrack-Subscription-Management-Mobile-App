@@ -110,6 +110,7 @@ const Subscriptions = () => {
                         }
                     />
                 )}
+                ListFooterComponent={<View className="mt-10"></View>}
                 contentContainerStyle={{
                     paddingHorizontal: 20,
                     paddingBottom: 20,

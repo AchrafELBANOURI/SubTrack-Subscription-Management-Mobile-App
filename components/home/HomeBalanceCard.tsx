@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import { formatCurrency, formatSubscriptionDateTime } from "../../lib/uttils";
+import { formatCurrency } from "../../lib/uttils";
 
 type HomeBalanceCardProps = {
     totalExpenses: number;
@@ -17,7 +17,7 @@ const HomeBalanceCard = ({totalExpenses,month,currency}: HomeBalanceCardProps) =
 
             <View className="home-balance-row">
                 <Text className="home-balance-amount">
-                    {`-${formatCurrency(totalExpenses,currency)}`}
+                    {formattedAmount}
                 </Text>
                 <Text className="home-balance-date">
                     {month}

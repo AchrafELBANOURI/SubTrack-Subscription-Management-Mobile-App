@@ -10,9 +10,10 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { colors } from "../../constants/theme";
+import { Platform } from "expo";
 
-const MAX_BAR_HEIGHT = 115;
 const MAX_DATA_VALUE = 45;
+const MAX_BAR_HEIGHT = Platform.OS === "ios" ? 115 : 168;
 
 interface AnimatedBarProps {
     item: WeeklyDayExpense;
@@ -27,6 +28,7 @@ export default function AnimatedBar({
     onPress,
     index,
 }: AnimatedBarProps) {
+
     const rawRatio = Math.min(Math.max(item.amount / MAX_DATA_VALUE + 0.02, 0.02), 1);
     const targetHeight = rawRatio * MAX_BAR_HEIGHT;
 
@@ -70,7 +72,7 @@ export default function AnimatedBar({
                 style={[
                     {
                         position: "absolute",
-                        bottom: targetHeight + 22,
+                        bottom: Platform.OS === "ios" ? targetHeight + 20 : targetHeight + 8,
                         alignItems: "center",
                         zIndex: 10,
                     },
@@ -79,7 +81,7 @@ export default function AnimatedBar({
                 pointerEvents="none"
             >
                 <View className="rounded-lg bg-white px-2 py-0.5 shadow-sm">
-                    <Text className="text-xs font-sans-bold text-accent">
+                    <Text className="text-xs font-sans-bold text-accent w-full">
                         ${Math.round(item.amount)}
                     </Text>
                 </View>

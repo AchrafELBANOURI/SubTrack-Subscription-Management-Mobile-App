@@ -17,7 +17,7 @@ export default function InsightsChart({
 
     return (
         <View className="insights-chart-card">
-            <View className="h-44 flex-row relative">
+            <View className="lg:h-44 h-60 flex-row relative">
                 {/* Y-Axis Labels and Dashed Grid Lines */}
                 <View className="absolute inset-0 justify-between h-full py-4 pointer-events-none">
                     {Y_AXIS_LEVELS.map((level) => (
@@ -37,8 +37,9 @@ export default function InsightsChart({
                 </View>
 
                 {/* Bars Area */}
-                <View className="flex-1 flex-row items-end justify-between ml-7 h-full ">
+                <View className="flex-1 flex-row items-end justify-between ml-7 h-full">
                     {data?.map((item, index) => {
+                        
                         const isSelected = selectedDay
                             ? selectedDay === item.day
                             : item.isPeak;

@@ -102,7 +102,7 @@ function RootLayoutComponent() {
 
     useEffect(() => {
         if ((fontsLoaded || error) && authLoaded) {
-            SplashScreen.hide();
+            void SplashScreen.hideAsync();
         }
     }, [fontsLoaded, error, authLoaded]);
 

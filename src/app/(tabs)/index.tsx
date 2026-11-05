@@ -162,6 +162,8 @@ export default function Index() {
                     }
                     ListFooterComponent={<View className="mt-20"></View>}
                     keyExtractor={(item) => item.id.toString()}
+                    style={{ marginHorizontal: -20 }}
+                    contentContainerStyle={{ paddingHorizontal: 20 }}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={() => (
                         <Text className="home-empty-state">

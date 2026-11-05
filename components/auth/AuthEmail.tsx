@@ -23,6 +23,7 @@ const AuthEmail = ({
         <View className="auth-field">
             <Text className="auth-label">Email Address</Text>
             <TextInput
+                style={{ paddingLeft : 10 , textAlignVertical: "center" }}
                 className={`auth-input ${emailTouched && !emailValid && "auth-input-error"}`}
                 autoCapitalize="none"
                 value={emailAddress}
