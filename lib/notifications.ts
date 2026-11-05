@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
+import { AndroidImportance } from "expo-notifications";
 import { router } from "expo-router";
 import { pauseSubscription } from "./backendApi";
 import { showErrorToast, showSuccessToast } from "./toast";
@@ -46,7 +47,7 @@ export async function initializeNotificationCategories() {
         if (Platform.OS === "android") {
             await Notifications.setNotificationChannelAsync(RENEWAL_CHANNEL_ID, {
                 name: "Renewal Reminders",
-                importance: Notifications.AndroidImportance.HIGH,
+                importance: AndroidImportance.HIGH,
                 vibrationPattern: [0, 250, 250, 250],
                 lightColor: colors.accent,
             });

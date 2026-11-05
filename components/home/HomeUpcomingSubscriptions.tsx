@@ -25,6 +25,12 @@ const HomeUpcomingSubscriptions = () => {
                         upcomingSubscriptionDetail={subscription}
                     />
                 )}
+                style={{
+                    marginHorizontal: -20,
+                }}
+                contentContainerStyle={{
+                    paddingHorizontal: 20,
+                }}
                 keyExtractor={(item) => item.id.toString()}
                 horizontal
                 showsHorizontalScrollIndicator={false}

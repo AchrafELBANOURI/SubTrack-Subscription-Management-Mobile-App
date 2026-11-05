@@ -98,11 +98,11 @@
     }
 
     .home-balance-amount {
-        @apply text-4xl font-sans-extrabold text-white;
+        @apply md:text-4xl text-2xl font-sans-extrabold text-white;
     }
 
     .home-balance-date {
-        @apply text-xl font-sans-medium text-white;
+        @apply md:text-xl text-lg font-sans-medium text-white;
     }
 
     .list-head {
@@ -312,7 +312,7 @@
     }
 
     .auth-input {
-        @apply rounded-2xl border border-border self-stretch bg-background px-5 py-4 text-base font-sans-medium text-primary;
+        @apply rounded-2xl border border-border self-stretch bg-background px-5 py-3 text-base font-sans-medium text-primary;
     }
 
     .auth-input-error {
@@ -458,7 +458,7 @@
     }
 
     .insights-chart-card {
-        @apply mb-5 rounded-3xl bg-muted px-5;
+        @apply mb-5 rounded-2xl bg-muted px-5;
     }
 
     .insights-expenses-card {
