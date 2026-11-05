@@ -20,11 +20,18 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-screen-subtrack.png",
+          "image": "./assets/images/splash-screen-portrait.png",
           "resizeMode": "contain",
           "backgroundColor": "#fff9e3",
           "imageWidth" : 350
         }
+      ],
+      [
+        "expo-notifications",
+          {
+            "icon": "./assets/icons/notification-logo.png",
+            "color": "#fff9e3"
+          }
       ],
       "@clerk/expo",
       "expo-secure-store"

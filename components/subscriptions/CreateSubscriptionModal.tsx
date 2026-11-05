@@ -3,7 +3,6 @@ import {
     Text,
     Modal,
     Pressable,
-    TextInput,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -24,6 +23,10 @@ import {
 import { getRenewalDateFromForm } from "../../lib/uttils";
 import { validateSubscriptionForm } from "../../lib/validation";
 import { formReducer } from "../../lib/subscriptionFormReducer";
+import ModalButton from "../modals/ModalButton";
+import ModalInput from "../modals/ModalInput";
+import ModalLabel from "../modals/ModalLabel";
+import ModalNote from "../modals/ModalNote";
 
 interface CreateSubscriptionModalProps {
     visible: boolean;
@@ -95,10 +98,10 @@ const CreateSubscriptionModal = ({
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className="flex-1"
             >
-                <Pressable className="modal-overlay" onPress={handleClose}>
-                    <Pressable
+                <View className="flex-1">
+                    <Pressable className="absolute inset-0 modal-overlay" onPress={handleClose}/>
+                    <View
                         className="modal-container"
-                        onPress={(e) => e.stopPropagation()}
                     >
                         <View className="modal-header">
                             <Text className="modal-title">
@@ -113,17 +116,22 @@ const CreateSubscriptionModal = ({
                         </View>
 
                         <ScrollView
-                            className="px-5 py-1"
+                            className="px-5 py-2"
                             showsVerticalScrollIndicator={false}
                             keyboardShouldPersistTaps="handled"
                             contentContainerStyle={{
                                 gap: 20,
                                 paddingBottom: 20,
                             }}
+                            nestedScrollEnabled
+                            keyboardDismissMode={
+                                Platform.OS === "ios" ? "interactive" : "on-drag"
+                            }
                         >
                             <View className="auth-field">
-                                <Text className="auth-label">Name</Text>
-                                <TextInput
+                                <ModalLabel>Name</ModalLabel>
+                                <ModalInput
+                                    style={{ paddingLeft : 15 , textAlignVertical: "center" }}
                                     className="auth-input"
                                     placeholder="Subscription name"
                                     placeholderTextColor="rgba(0, 0, 0, 0.4)"
@@ -139,9 +147,10 @@ const CreateSubscriptionModal = ({
                             </View>
 
                             <View className="auth-field">
-                                <Text className="auth-label">Price</Text>
+                                <ModalLabel>Price</ModalLabel>
                                 <View className="flex-row items-center gap-3">
-                                    <TextInput
+                                    <ModalInput
+                                        style={{ paddingLeft : 15 , textAlignVertical: "center" }}
                                         className="auth-input flex-1"
                                         placeholder="0.00"
                                         placeholderTextColor="rgba(0, 0, 0, 0.4)"
@@ -156,7 +165,7 @@ const CreateSubscriptionModal = ({
                                         keyboardType="decimal-pad"
                                     />
 
-                                    <Pressable
+                                    <ModalButton
                                         className="auth-input w-[90px] items-center justify-center"
                                         onPress={() => {
                                             const currentIndex =
@@ -175,23 +184,24 @@ const CreateSubscriptionModal = ({
                                             });
                                         }}
                                     >
-                                        <Text className="auth-label mb-0">
+                                        <ModalLabel className="mb-0">
                                             {form.currency}
-                                        </Text>
-                                    </Pressable>
+                                        </ModalLabel>
+                                    </ModalButton>
                                 </View>
-                                <Text className="modal-note">
+                                <ModalNote>
                                     Note: The first expense is created when this
                                     subscription is created. After that,
                                     changing the subscription price will not
                                     change existing expenses. The new price will
                                     apply to future expenses.
-                                </Text>
+                                </ModalNote>
                             </View>
 
                             <View className="auth-field">
-                                <Text className="auth-label">Plan</Text>
-                                <TextInput
+                                <ModalLabel>Plan</ModalLabel>
+                                <ModalInput
+                                    style={{ paddingLeft : 15 , textAlignVertical: "center" }}
                                     className="auth-input"
                                     placeholder="free trial | free plan | entreprise plan..."
                                     placeholderTextColor="rgba(0, 0, 0, 0.4)"
@@ -207,10 +217,10 @@ const CreateSubscriptionModal = ({
                             </View>
 
                             <View className="auth-field">
-                                <Text className="auth-label">Frequency</Text>
+                                <ModalLabel>Frequency</ModalLabel>
                                 <View className="picker-row">
                                     {FREQUENCIES.map((value) => (
-                                        <Pressable
+                                        <ModalButton
                                             key={value}
                                             className={clsx(
                                                 "picker-option",
@@ -224,7 +234,7 @@ const CreateSubscriptionModal = ({
                                                 })
                                             }
                                         >
-                                            <Text
+                                            <ModalLabel
                                                 className={clsx(
                                                     "picker-option-text",
                                                     form.frequency === value &&
@@ -232,23 +242,24 @@ const CreateSubscriptionModal = ({
                                                 )}
                                             >
                                                 {value}
-                                            </Text>
-                                        </Pressable>
+                                            </ModalLabel>
+                                        </ModalButton>
                                     ))}
                                 </View>
-                                <Text className="modal-note">
+                                <ModalNote>
                                     Note: Changing the frequency or frequency
                                     period only affects future expenses.
                                     Existing expenses keep the values that were
                                     recorded when they were created.
-                                </Text>
+                                </ModalNote>
                             </View>
 
                             <View className="auth-field">
-                                <Text className="auth-label">Every</Text>
+                                <ModalLabel>Every</ModalLabel>
                                 <View className="flex-row items-center gap-3">
-                                    <TextInput
-                                        className="auth-input flex-1"
+                                    <ModalInput
+                                        style={{ paddingLeft : 15 , textAlignVertical: "center" }}
+                                        className="auth-input flex-2"
                                         placeholder="1"
                                         placeholderTextColor="rgba(0, 0, 0, 0.4)"
                                         value={String(
@@ -270,17 +281,17 @@ const CreateSubscriptionModal = ({
                                         }}
                                         keyboardType="number-pad"
                                     />
-                                    <Text className="auth-input flex-[1.1] auth-label mb-0">
+                                    <Text className="auth-input flex-1 auth-label text-center mb-0">
                                         {form.frequencyPeriod.period}
                                     </Text>
                                 </View>
                             </View>
 
                             <View className="auth-field">
-                                <Text className="auth-label">Category</Text>
+                                <ModalLabel>Category</ModalLabel>
                                 <View className="category-scroll">
                                     {CATEGORIES.map((cat) => (
-                                        <Pressable
+                                        <ModalButton
                                             key={cat}
                                             className={clsx(
                                                 "category-chip",
@@ -295,7 +306,7 @@ const CreateSubscriptionModal = ({
                                                 })
                                             }
                                         >
-                                            <Text
+                                            <ModalLabel
                                                 className={clsx(
                                                     "category-chip-text",
                                                     form.category === cat &&
@@ -303,13 +314,13 @@ const CreateSubscriptionModal = ({
                                                 )}
                                             >
                                                 {cat}
-                                            </Text>
-                                        </Pressable>
+                                            </ModalLabel>
+                                        </ModalButton>
                                     ))}
                                 </View>
                             </View>
 
-                            <Pressable
+                            <ModalButton
                                 className={clsx(
                                     "auth-button",
                                     (!isValidForm || isSubmitting) &&
@@ -323,10 +334,11 @@ const CreateSubscriptionModal = ({
                                         ? "Creating..."
                                         : "Create Subscription"}
                                 </Text>
-                            </Pressable>
+                            </ModalButton>
                         </ScrollView>
-                    </Pressable>
-                </Pressable>
+                    </View>
+                </View>
+
             </KeyboardAvoidingView>
         </Modal>
     );

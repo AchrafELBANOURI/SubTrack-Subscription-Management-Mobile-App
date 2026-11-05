@@ -1,5 +1,6 @@
 import {
     ActivityIndicator,
+    Modal,
     Pressable,
     RefreshControl,
     ScrollView,
@@ -12,7 +13,7 @@ import HistoryCard from "../../../components/insights/HistoryCard";
 import InsightsChart from "../../../components/insights/InsightsChart";
 import InsightsHeader from "../../../components/insights/InsightsHeader";
 import InsightsOptionsMenu from "../../../components/insights/InsightsOptionsMenu";
-import { useExpenseInsightsQuery } from "../../../lib/expenseQueries";
+import { useDeleteAllExpensesMutation, useExpenseInsightsQuery } from "../../../lib/expenseQueries";
 import { useInsightsUiStore } from "../../../stores/InsightsStore";
 import "../../../global.css";
 import { colors } from "../../../constants/theme";
@@ -50,6 +51,28 @@ export default function Insights() {
     const displayedHistory = showAllHistory
         ? historyItems
         : historyItems.slice(0, 3);
+
+    const isClearExpensesHistoryConfirmationModalVisible =
+        useInsightsUiStore(
+            (state) => state.isClearExpensesHistoryConfirmationModalVisible,
+        );
+
+    const setClearExpensesHistoryConfirmationModalVisible =
+        useInsightsUiStore(
+            (state) =>
+                state.setClearExpensesHistoryConfirmationModalVisible,
+        );
+
+    const deleteAllExpensesMutation = useDeleteAllExpensesMutation();
+
+    const handleClearExpenses = async () => {
+        try {
+            await deleteAllExpensesMutation.mutateAsync();
+        } finally {
+            setClearExpensesHistoryConfirmationModalVisible(false);
+        }
+    };
+
 
     return (
         <SafeScreen
@@ -140,8 +163,58 @@ export default function Insights() {
                 {/* Options Action Menu */}
                 <InsightsOptionsMenu
                     visible={isOptionsModalVisible}
+                    setClearExpensesHistoryConfirmationModalVisible={setClearExpensesHistoryConfirmationModalVisible}
                     onClose={() => setOptionsModalVisible(false)}
                 />
+
+                <Modal
+                    visible={isClearExpensesHistoryConfirmationModalVisible}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setClearExpensesHistoryConfirmationModalVisible(false)}
+                >
+                    <Pressable
+                        className="modal-overlay justify-center items-center"
+                        onPress={() => setClearExpensesHistoryConfirmationModalVisible(false)}
+                    >
+                        <Pressable
+                            className="w-[95%] md:w-3/4 bg-background rounded-3xl p-5"
+                            onPress={(event) => event.stopPropagation()}
+                        >
+                            <Text className="text-xl font-sans-bold text-primary">
+                                Clear expense and subscription history?
+                            </Text>
+                            <Text className="text-base text-muted-foreground mt-3">
+                                This permanently deletes all recorded expenses and subscriptions for
+                                your account.
+                            </Text>
+                            <View className="flex-row justify-end gap-3 mt-6">
+                                <Pressable
+                                    className="auth-secondary-button px-4"
+                                    onPress={() => setClearExpensesHistoryConfirmationModalVisible(false)}
+                                    disabled={deleteAllExpensesMutation.isPending}
+                                >
+                                    <Text className="auth-secondary-button-text">
+                                        Cancel
+                                    </Text>
+                                </Pressable>
+                                <Pressable
+                                    className="auth-button bg-destructive px-4"
+                                    onPress={() => void handleClearExpenses()}
+                                    disabled={deleteAllExpensesMutation.isPending}
+                                >
+                                    {deleteAllExpensesMutation.isPending ? (
+                                        <ActivityIndicator color="#ffffff" />
+                                    ) : (
+                                        <Text className="auth-button-text text-white">
+                                            Clear history
+                                        </Text>
+                                    )}
+                                </Pressable>
+                            </View>
+                        </Pressable>
+                    </Pressable>
+                </Modal>
             </View>
         </SafeScreen>
     );

@@ -27,6 +27,7 @@ const AuthPassword = ({
             <Text className="auth-label">Password</Text>
             <View className="relative">
                 <TextInput
+                    style={{ paddingLeft : 10 , textAlignVertical: "center" }}
                     className={`auth-input pr-12 ${
                         passwordTouched && !passwordValid
                             ? "auth-input-error"

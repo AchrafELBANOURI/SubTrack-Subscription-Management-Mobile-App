@@ -18,8 +18,8 @@ export const CATEGORIES: Category[] = [
 
 export const FREQUENCIES: Frequency[] = [
     "Daily",
-    "Monthly",
     "Weekly",
+    "Monthly",
     "Yearly",
 ];
 

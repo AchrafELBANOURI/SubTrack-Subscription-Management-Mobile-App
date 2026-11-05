@@ -16,6 +16,7 @@ const AuthVerifCode = ({
         <View className="auth-field">
             <Text className="auth-label">Verification Code</Text>
             <TextInput
+                style={{ paddingLeft : 10 , textAlignVertical: "center" }}
                 className="auth-input"
                 value={code}
                 placeholder="Enter 6-digit code"

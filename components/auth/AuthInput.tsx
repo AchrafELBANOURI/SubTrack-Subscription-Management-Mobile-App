@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View, Text, TextInput } from "react-native";
-import { isValidEmail, isValidInput } from "../../lib/validation";
+import { isValidInput } from "../../lib/validation";
 import { AuthError } from "@auth";
 
 type AuthInputProps = {
@@ -27,6 +27,7 @@ const AuthInput = ({
         <View className="auth-field">
             <Text className="auth-label">{label}</Text>
             <TextInput
+                style={{ paddingLeft : 10 , textAlignVertical: "center" }}
                 className={`auth-input ${touched && !isValid && "auth-input-error"}`}
                 autoCapitalize="none"
                 value={inputValue}
